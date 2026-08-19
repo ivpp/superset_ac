@@ -270,6 +270,17 @@ const AdhocFilterEditPopoverSimpleTabContent: FC<Props> = props => {
   const [loadingComparatorSuggestions, setLoadingComparatorSuggestions] =
     useState(false);
 
+  /**
+   * Focus comparator only after an explicit subject/operator selection.
+   *
+   * Do not derive this from `subject && operatorId`, because that is already
+   * true when editing an existing filter. If comparator auto-focuses merely
+   * because those values exist, it can steal focus when the operator dropdown
+   * is opened and make the dropdown close immediately.
+   */
+  const [focusComparatorAfterChange, setFocusComparatorAfterChange] =
+    useState(false);
+
   const {
     advancedDataTypesState,
     subjectAdvancedDataType,
@@ -308,6 +319,26 @@ const AdhocFilterEditPopoverSimpleTabContent: FC<Props> = props => {
   const handleSubjectChange = (subject: string) => {
     setComparator(undefined);
     onSubjectChange(subject);
+
+    /**
+     * Always request comparator focus after subject selection.
+     *
+     * If the selected subject becomes a temporal column, `datePicker` will
+     * replace the comparator UI. If the resulting operator disables comparator
+     * input, the rendered control is disabled and will not meaningfully accept
+     * focus.
+     */
+    setFocusComparatorAfterChange(true);
+  };
+
+  const handleOperatorChange = (operatorId: Operators) => {
+    onOperatorChange(operatorId);
+
+    if (!DISABLE_INPUT_OPERATORS.includes(operatorId)) {
+      setFocusComparatorAfterChange(true);
+    } else {
+      setFocusComparatorAfterChange(false);
+    }
   };
 
   let columns = props.options;
@@ -355,13 +386,12 @@ const AdhocFilterEditPopoverSimpleTabContent: FC<Props> = props => {
       ).length,
     ),
     value: operatorId,
-    onChange: onOperatorChange,
+    onChange: handleOperatorChange,
     autoFocus: !!subjectSelectProps.value && !operator,
     ariaLabel: t('Select operator'),
   };
 
-  const shouldFocusComparator =
-    !!subjectSelectProps.value && !!operatorSelectProps.value;
+  const shouldFocusComparator = focusComparatorAfterChange;
 
   const comparatorSelectProps = {
     allowClear: true,
@@ -377,6 +407,7 @@ const AdhocFilterEditPopoverSimpleTabContent: FC<Props> = props => {
     disabled: DISABLE_INPUT_OPERATORS.includes(operatorId),
     placeholder: createSuggestionsPlaceholder(),
     autoFocus: shouldFocusComparator,
+    onFocus: () => setFocusComparatorAfterChange(false),
   };
 
   const labelText =
@@ -527,6 +558,7 @@ const AdhocFilterEditPopoverSimpleTabContent: FC<Props> = props => {
             ref={ref => {
               if (ref && shouldFocusComparator) {
                 ref.focus();
+                setFocusComparatorAfterChange(false);
               }
             }}
             onChange={onInputComparatorChange}
