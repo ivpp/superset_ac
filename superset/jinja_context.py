@@ -34,6 +34,7 @@ from jinja2.sandbox import SandboxedEnvironment
 from sqlalchemy.engine.interfaces import Dialect
 from sqlalchemy.sql.expression import bindparam
 from sqlalchemy.types import String
+from sqlglot import exp, parse_one
 
 from superset import security_manager
 from superset.commands.dataset.exceptions import DatasetNotFoundError
@@ -783,6 +784,135 @@ class JinjaTemplateProcessor(BaseTemplateProcessor):
         except dateutil.parser.ParserError:
             return None
 
+    def get_column_expression(self, column_name: str) -> str:
+
+        if self._table is None:
+            raise SupersetTemplateException(
+                "No dataset available in template context"
+            )
+
+        column = next(
+            (
+                column
+                for column in self._table.columns
+                if column.column_name == column_name
+            ),
+            None,
+        )
+
+        if column is None:
+            raise SupersetTemplateException(
+                f"Column '{column_name}' not found"
+            )
+        if column.expression:
+            return self.env.from_string(column.expression).render(self._context)
+
+        return self._database.quote_identifier(column.column_name)
+
+
+    def get_active_columns(self):
+
+        from superset.views.utils import get_form_data
+
+        form_data, _ = get_form_data()
+
+        def get_cols_from_sql_expression(expression):
+            if not expression:
+                return []
+            query = parse_one(expression)
+            cols = list(
+                {
+                    column.alias_or_name
+                    for column
+                    in query.find_all(exp.Column)
+                }
+            )
+            return cols
+
+        active_columns = []
+
+        # Columns from columns/dimensions:
+        cols_columns = []
+        for column in self._context.get("columns", []):
+            if isinstance(column, str):
+                cols_columns.extend(
+                    get_cols_from_sql_expression(
+                        self.get_column_expression(column)
+                    )
+                )
+            elif isinstance(column, dict):
+                cols_columns.extend(
+                    get_cols_from_sql_expression(
+                        column["sqlExpression"]
+                    )
+                )
+        active_columns.extend(cols_columns)
+
+        # Columns from metrics and order by:
+        cols_metrics = []
+        metrics_and_orderby = (
+            self._context.get("metrics", [])
+            + [i[0] for i in form_data.get("orderby", [])]
+        )
+        for metric in metrics_and_orderby:
+            if isinstance(metric, str):
+                expression = metric_macro(self.env, self._context, metric)
+                cols_metrics.extend(
+                    get_cols_from_sql_expression(
+                        expression
+                    )
+                )
+            elif metric.get("expressionType") == "SIMPLE":
+                cols_metrics.append(metric["column"]["column_name"])
+            elif metric.get("expressionType") == "SQL":
+                cols_metrics.extend(
+                    get_cols_from_sql_expression(
+                        metric["sqlExpression"]
+                    )
+                )
+            else:
+                raise ValueError("Unknown metric type")
+        active_columns.extend(cols_metrics)
+
+        # Columns from filter:
+        #   From Simple
+        active_columns.extend([i["col"] for i in form_data.get("filters", [])])
+        #   From Custom SQL WHERE
+        active_columns.extend(
+            get_cols_from_sql_expression(
+                form_data.get("extras", {}).get("where", "")
+            )
+        )
+        #   From Custom SQL HAVING
+        active_columns.extend(
+            get_cols_from_sql_expression(
+                form_data.get("extras", {}).get("having", "")
+            )
+        )
+
+        # Make active_columns lowercase and unique
+        active_columns = {i.lower() for i in active_columns}
+
+        # Just in case - filter to leave only those active columns found
+        # which really exist as dataset columns (should already be)
+        table_columns = {j.lower() for j in self._context.get("table_columns", [])}
+        return  {
+            i for i in active_columns
+            if i in table_columns
+        }
+
+
+    def columns_are_active(self, columns: list[str]):
+        """
+        Return True if at least one column is used by user.
+        """
+        if not hasattr(self, "_active_columns_cache"):
+            self._active_columns_cache = self.get_active_columns()
+
+        requested = {col.lower() for col in columns}
+        return bool(requested.intersection(self._active_columns_cache))
+
+
     def set_context(self, **kwargs: Any) -> None:
         super().set_context(**kwargs)
         extra_cache = ExtraCache(
@@ -839,6 +969,11 @@ class JinjaTemplateProcessor(BaseTemplateProcessor):
             metric_macro,
             self.env,
             self._context,
+        )
+
+        self._context["columns_are_active"] = partial(
+            safe_proxy,
+            self.columns_are_active
         )
 
 
