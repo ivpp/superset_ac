@@ -483,6 +483,7 @@ openpyxl==3.1.5
     # via
     #   -c requirements/base.txt
     #   pandas
+oracledb==3.4.2
 ordered-set==4.1.0
     # via
     #   -c requirements/base.txt
@@ -803,7 +804,7 @@ sqlalchemy-utils==0.38.3
     #   -c requirements/base.txt
     #   apache-superset
     #   flask-appbuilder
-sqlglot==27.15.2
+sqlglot==27.29.0
     # via
     #   -c requirements/base.txt
     #   apache-superset
