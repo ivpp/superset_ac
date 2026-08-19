@@ -162,13 +162,13 @@ msgid " to add calculated columns"
 msgstr " для добавления вычисляемых столбцов"
 
 msgid " to add metrics"
-msgstr " для добавления мер"
+msgstr " для добавления метрик"
 
 msgid " to check for details."
 msgstr "для проверки деталей."
 
 msgid " to edit or add columns and metrics."
-msgstr " для редактирования или добавления столбцов и мер."
+msgstr " для редактирования или добавления столбцов и метрик."
 
 msgid " to mark a column as a time column"
 msgstr ", чтобы пометить столбец как столбец даты/времени"
@@ -356,7 +356,7 @@ msgstr[2] "%s строк"
 
 #, python-format
 msgid "%s saved metric(s)"
-msgstr "Сохраненная мер: %s"
+msgstr "Сохраненная метрик: %s"
 
 #, python-format
 msgid "%s tab selected"
@@ -660,10 +660,10 @@ msgid "<new column>"
 msgstr "<новый столбец>"
 
 msgid "<new metric>"
-msgstr "<новая мера>"
+msgstr "<новая метрика>"
 
 msgid "<new spatial>"
-msgstr "<новая пространственная мера>"
+msgstr "<новая пространственная метрика>"
 
 msgid "<no type>"
 msgstr "<без типа>"
@@ -746,7 +746,7 @@ msgstr ""
 "Карта с маркерами переменного радиуса, расположенными в заданных гео-координатах"
 
 msgid "A metric to use for color"
-msgstr "Мера, используемая для расчета цвета"
+msgstr "Метрика, используемая для расчета цвета"
 
 msgid "A new chart and dashboard will be created."
 msgstr "Новые диаграмма и дашборд будут созданы"
@@ -1011,10 +1011,10 @@ msgid "Add item"
 msgstr "Добавить запись"
 
 msgid "Add metric"
-msgstr "Добавить меру"
+msgstr "Добавить метрику"
 
 msgid "Add metrics to dataset in \"Edit datasource\" modal"
-msgstr "Добавьте меры в датасет в настройках датасета"
+msgstr "Добавьте метрики в датасет в настройках датасета"
 
 msgid "Add new color formatter"
 msgstr "Окрашивать по условию"
@@ -1363,7 +1363,7 @@ msgid ""
 "emphasizes the mean, median, and inner 2 quartiles. The whiskers around each box "
 "visualize the min, max, range, and outer 2 quartiles."
 msgstr ""
-"Эта диаграмма позволяет сравнить распределения значений некоторой меры внутри "
+"Эта диаграмма позволяет сравнить распределения значений некоторой метрики внутри "
 "нескольких групп. Ящик в центре показывает среднее, медиану и два внутренних "
 "квартиля. Усы визуализируют минимум, максимум, диапазон и два внешних квартиля."
 
@@ -1786,10 +1786,10 @@ msgid "Apply another dashboard filter"
 msgstr "Применить другой фильтр дашборда"
 
 msgid "Apply conditional color formatting to metric"
-msgstr "Применить условное цветовое форматирование к мере"
+msgstr "Применить условное цветовое форматирование к метрике"
 
 msgid "Apply conditional color formatting to metrics"
-msgstr "Применить условное цветовое форматирование к мерам"
+msgstr "Применить условное цветовое форматирование к метрикам"
 
 msgid "Apply conditional color formatting to numeric columns"
 msgstr "Применить условное цветовое форматирование к столбцам"
@@ -1805,7 +1805,7 @@ msgid "Apply filters"
 msgstr "Применить"
 
 msgid "Apply metrics on"
-msgstr "Применить меры к"
+msgstr "Применить метрики к"
 
 msgid "April"
 msgstr "Апрель"
@@ -2089,7 +2089,7 @@ msgid "Base width"
 msgstr "Базовая ширина"
 
 msgid "Based on a metric"
-msgstr "На основе меры"
+msgstr "На основе метрики"
 
 msgid "Based on granularity, number of time periods to compare against"
 msgstr ""
@@ -2281,7 +2281,7 @@ msgstr ""
 "По умолчанию, каждый фильтр загружает не больше 1000 элементов выбора при "
 "начальной загрузке страницы. Установите этот флаг, если у вас больше 1000 "
 "значений фильтра и вы хотите включить динамический поиск, который загружает "
-"значения по мере их ввода пользователем (может увеличить нагрузку на вашу базу "
+"значения по метрике их ввода пользователем (может увеличить нагрузку на вашу базу "
 "данных)."
 
 msgid "By key: use column names as sorting key"
@@ -2291,7 +2291,7 @@ msgid "By key: use row names as sorting key"
 msgstr "По ключу: использовать имена строк как ключ сортировки"
 
 msgid "By value: use metric values as sorting key"
-msgstr "По значению: использовать значения мер как ключ сортировки"
+msgstr "По значению: использовать значения метрик как ключ сортировки"
 
 msgid "CANCEL"
 msgstr "ОТМЕНИТЬ"
@@ -2761,7 +2761,7 @@ msgid ""
 "proportioning"
 msgstr ""
 "Установите флажок, если хотите, чтобы площади, а не радиусы сегментов были "
-"пропорциональны мере"
+"пропорциональны метрике"
 
 msgid "Check out this chart in dashboard:"
 msgstr "Посмотреть диаграмму на дашборде:"
@@ -2800,7 +2800,7 @@ msgid "Choose a delimiter"
 msgstr "Выберите разделитель"
 
 msgid "Choose a metric for right axis"
-msgstr "Выберите меру для правой оси"
+msgstr "Выберите метрику для правой оси"
 
 msgid "Choose a number format"
 msgstr "Выберите числовой формат"
@@ -2875,7 +2875,7 @@ msgid ""
 "Choose whether a country should be shaded by the metric, or assigned a color "
 "based on a categorical color palette"
 msgstr ""
-"Определяет метод окраски стран: по значению меры или по категориальной палитре"
+"Определяет метод окраски стран: по значению метрики или по категориальной палитре"
 
 msgid "Choose..."
 msgstr "Выбрать..."
@@ -3052,7 +3052,7 @@ msgid "Color +/-"
 msgstr "Раскрасить +/-"
 
 msgid "Color Metric"
-msgstr "Цвет меры"
+msgstr "Цвет метрики"
 
 msgid "Color Scheme"
 msgstr "Цветовая схема"
@@ -3076,7 +3076,7 @@ msgid "Color for breakpoint"
 msgstr "Цвет порогового значения"
 
 msgid "Color metric"
-msgstr "Мера для цвета"
+msgstr "Метрика для цвета"
 
 msgid "Color of the source location"
 msgstr "Цвет исходного местоположения"
@@ -3170,7 +3170,7 @@ msgid "Columns (%s)"
 msgstr "Столбцы (%s)"
 
 msgid "Columns and metrics"
-msgstr "Столбцы и меры"
+msgstr "Столбцы и метрики"
 
 #, python-format
 msgid "Columns missing in dataset: %(invalid_columns)s"
@@ -3208,7 +3208,7 @@ msgid "Columns to show in the tooltip."
 msgstr "Столбцы для отображения во всплывающей подсказке."
 
 msgid "Combine metrics"
-msgstr "Объединить меры"
+msgstr "Объединить метрики"
 
 msgid ""
 "Comma-separated color picks for the intervals, e.g. 1,2,4. Integers denote colors "
@@ -3245,7 +3245,7 @@ msgid ""
 "Compares how a metric changes over time between different groups. Each group is "
 "mapped to a row and change over time is visualized bar lengths and color."
 msgstr ""
-"Сравнивает изменение меры во времени между разными группами. Каждая группа "
+"Сравнивает изменение метрики во времени между разными группами. Каждая группа "
 "отображается отдельной строкой, а динамика изменений визуализируется через длину "
 "столбцов и цвет."
 
@@ -3254,7 +3254,7 @@ msgid ""
 "multiple periods (like weeks or months) to show period-over-period trends and "
 "patterns."
 msgstr ""
-"Сравнивает меры за разные периоды времени. Отображает данные временных рядов за "
+"Сравнивает метрики за разные периоды времени. Отображает данные временных рядов за "
 "несколько периодов (например, недель или месяцев), чтобы показать тенденции и "
 "закономерности между периодами."
 
@@ -3681,7 +3681,7 @@ msgid "Custom SQL"
 msgstr "Через SQL"
 
 msgid "Custom SQL ad-hoc metrics are not enabled for this dataset"
-msgstr "Пользовательские ad-hoc меры SQL не разрешены для этого датасета"
+msgstr "Пользовательские ad-hoc метрики SQL не разрешены для этого датасета"
 
 msgid "Custom SQL fields cannot contain sub-queries."
 msgstr "Пользовательские поля SQL не могут содержать подзапросы"
@@ -3716,7 +3716,7 @@ msgid "Customize"
 msgstr "Кастомизация"
 
 msgid "Customize Metrics"
-msgstr "Настроить меры"
+msgstr "Настроить метрики"
 
 msgid ""
 "Customize cell titles using Handlebars template syntax. Available variables: "
@@ -3729,7 +3729,7 @@ msgid ""
 "Customize chart metrics or columns with currency symbols as prefixes or suffixes. "
 "Choose a symbol from dropdown or type your own."
 msgstr ""
-"Настройте отображение мер или столбцов с символами валют (префиксы или суффиксы). "
+"Настройте отображение метрик или столбцов с символами валют (префиксы или суффиксы). "
 "Выберите символ из списка или введите свой."
 
 msgid "Customize columns"
@@ -4062,10 +4062,10 @@ msgid "Dataset is required"
 msgstr "Требуется датасет"
 
 msgid "Dataset metric delete failed."
-msgstr "Не удалось удалить меру датасета"
+msgstr "Не удалось удалить метрику датасета"
 
 msgid "Dataset metric not found."
-msgstr "Мера датасета не найдена"
+msgstr "Метрика датасета не найдена"
 
 #, fuzzy
 msgid ""
@@ -4160,7 +4160,7 @@ msgid "December"
 msgstr "Декабрь"
 
 msgid "Decides which column or measure to sort the base axis by."
-msgstr "Определяет, по какому столбцу или мере сортировать основную ось."
+msgstr "Определяет, по какому столбцу или метрике сортировать основную ось."
 
 msgid "Decimal character"
 msgstr "Десятичный разделитель"
@@ -4714,7 +4714,7 @@ msgid ""
 "Display metrics side by side within each column, as opposed to each column being "
 "displayed side by side for each metric."
 msgstr ""
-"Отобразить меры для каждого столбца или продублировать все столбцы для каждой меры"
+"Отобразить метрики для каждого столбца или продублировать все столбцы для каждой метрики"
 
 msgid ""
 "Display percents in the label and tooltip as the percent of the total value, from "
@@ -4814,9 +4814,9 @@ msgid ""
 "will appear in the same order in tooltips. Click the button to manually select "
 "columns and metrics."
 msgstr ""
-"Перетащите столбцы и меры сюда, чтобы настроить содержание всплывающих подсказок. "
+"Перетащите столбцы и метрики сюда, чтобы настроить содержание всплывающих подсказок. "
 "Порядок имеет значение — элементы будут отображаться в том же порядке в "
-"подсказках. Нажмите кнопку, чтобы вручную выбрать столбцы и меры."
+"подсказках. Нажмите кнопку, чтобы вручную выбрать столбцы и метрики."
 
 msgid "Draw a marker on data points. Only applicable for line types."
 msgstr "Отобразить маркеры на точках данных. Применимо только для графиков."
@@ -4881,15 +4881,15 @@ msgstr[2] "Перетащите сюда столбцы"
 
 msgid "Drop a column/metric here or click"
 msgid_plural "Drop columns/metrics here or click"
-msgstr[0] "Перетащите сюда меру или столбец"
-msgstr[1] "Перетащите сюда меры или столбцы"
-msgstr[2] "Перетащите сюда меры или столбцы"
+msgstr[0] "Перетащите сюда метрику или столбец"
+msgstr[1] "Перетащите сюда метрики или столбцы"
+msgstr[2] "Перетащите сюда метрики или столбцы"
 
 msgid "Drop a temporal column here or click"
 msgstr "Перетащите сюда временной столбец"
 
 msgid "Drop columns/metrics here or click"
-msgstr "Перетащите сюда меру или столбец"
+msgstr "Перетащите сюда метрику или столбец"
 
 msgid "Dttm"
 msgstr "Дата и время"
@@ -4906,8 +4906,8 @@ msgid ""
 "Duplicate column/metric labels: %(labels)s. Please make sure all columns and "
 "metrics have a unique label."
 msgstr ""
-"Повторяющиеся метки столбцов или мер: %(labels)s. Убедитесь, что все столбцы и "
-"меры имеют уникальную метку."
+"Повторяющиеся метки столбцов или метрик: %(labels)s. Убедитесь, что все столбцы и "
+"метрики имеют уникальную метку."
 
 msgid "Duplicate dataset"
 msgstr "Дублировать датасет"
@@ -5406,7 +5406,7 @@ msgstr "Ошибка в Jinja-выражении в предикате выбо�
 
 #, python-format
 msgid "Error in jinja expression in metric expression: %(msg)s"
-msgstr "Ошибка в Jinja-выражении меры: %(msg)s"
+msgstr "Ошибка в Jinja-выражении метрики: %(msg)s"
 
 msgid "Error loading chart datasources. Filters may not work correctly."
 msgstr ""
@@ -5589,32 +5589,32 @@ msgstr "Экспорт темы"
 msgid "Export to .CSV"
 msgstr "Экспорт в CSV"
 
+msgid "Export all to .CSV"
+msgstr "Экспорт полной таблицы в CSV"
+
 msgid "Export to .JSON"
 msgstr "Экспорт в JSON"
 
 msgid "Export to Excel"
 msgstr "Экспорт в Excel"
 
+msgid "Export all to Excel"
+msgstr "Экспорт полной таблицы в Excel"
+
 msgid "Export to PDF"
 msgstr "Экспорт в PDF"
 
-msgid "Export to Pivoted .CSV"
-msgstr "Экспорт в CSV со сводной таблицей"
-
-msgid "Export to Pivoted Excel"
-msgstr "Экспорт в Excel со сводной таблицей"
-
-msgid "Export to full .CSV"
-msgstr "Экспорт в целый CSV"
-
-msgid "Export to full Excel"
-msgstr "Экспорт в целый Excel"
-
-msgid "Export to original .CSV"
-msgstr "Экспорт исходных данных в .CSV"
-
 msgid "Export to pivoted .CSV"
-msgstr "Экспорт сводной таблицы в .CSV"
+msgstr "Экспорт сводной таблицы в CSV"
+
+msgid "Export all to pivoted .CSV"
+msgstr "Экспорт полной сводной таблицы в CSV"
+
+msgid "Export to pivoted Excel"
+msgstr "Экспорт сводной таблицы в Excel"
+
+msgid "Export all to pivoted Excel"
+msgstr "Экспорт полной сводной таблицы в Excel"
 
 msgid "Expose database in SQL Lab"
 msgstr "Предоставить доступ к базе в SQL Lab"
@@ -5684,7 +5684,7 @@ msgid "Factor"
 msgstr "Коэффициент"
 
 msgid "Factor to multiply the metric by"
-msgstr "Число, на которое умножается мера"
+msgstr "Число, на которое умножается метрика"
 
 msgid "Fail login count"
 msgstr "Количество неудачных входов"
@@ -5883,7 +5883,7 @@ msgid "Filters by columns"
 msgstr "Фильтры по столбцам"
 
 msgid "Filters by metrics"
-msgstr "Фильтры по мерам"
+msgstr "Фильтры по метрикам"
 
 msgid "Filters for comparison must have a value"
 msgstr "Фильтры для сравнения должны содержать значение"
@@ -6123,7 +6123,7 @@ msgid "Further customize how to display each column"
 msgstr "Дальнейшая настройка отображения каждого столбца"
 
 msgid "Further customize how to display each metric"
-msgstr "Дальнейшая настройка отображения каждой меры"
+msgstr "Дальнейшая настройка отображения каждой метрики"
 
 # Не переводить
 msgid "GROUP BY"
@@ -6231,7 +6231,7 @@ msgid "Group By"
 msgstr "Группировать по"
 
 msgid "Group By, Metrics or Percentage Metrics must have a value"
-msgstr "Измерения, Меры или Процентные меры должны иметь значение"
+msgstr "Измерения, Метрики или Процентные метрики должны иметь значение"
 
 msgid "Group Key"
 msgstr "Группа"
@@ -6402,7 +6402,7 @@ msgstr ""
 "можно через свойство hive.server2.proxy.user."
 
 msgid "If a metric is specified, sorting will be done based on the metric value"
-msgstr "Если выбрать меру, список значений фильтров будет отсортирован по ней"
+msgstr "Если выбрать метрику, список значений фильтров будет отсортирован по ней"
 
 msgid ""
 "If enabled, this control sorts the results/values descending, otherwise it sorts "
@@ -6639,7 +6639,7 @@ msgid "Invalid cumulative operator: %(operator)s"
 msgstr "Некорректная агрегатная функция: %(operator)s"
 
 msgid "Invalid currency code in saved metrics"
-msgstr "Некорректный код валюты в сохраненных мерах"
+msgstr "Некорректный код валюты в сохраненных метриках"
 
 msgid "Invalid date/timestamp format"
 msgstr "Недопустимый формат даты-времени"
@@ -6671,7 +6671,7 @@ msgstr "Недопустимые долгота/широта"
 
 #, python-format
 msgid "Invalid metric object: %(metric)s"
-msgstr "Некорректная мера: %(metric)s"
+msgstr "Некорректная метрика: %(metric)s"
 
 #, python-format
 msgid "Invalid numpy function: %(operator)s"
@@ -7474,27 +7474,27 @@ msgid ""
 "like ratios, averages, or distinct counts. Other methods operate over the time "
 "series data points."
 msgstr ""
-"Метод вычисления отображаемого значения. «Общее значение» вычисляет единую меру "
+"Метод вычисления отображаемого значения. «Общее значение» вычисляет единую метрику "
 "за весь отфильтрованный временной период, что идеально подходит для неаддитивных "
 "показателей, таких как коэффициенты, средние значения или уникальные подсчеты. "
 "Другие методы работают с точками временного ряда."
 
 msgid "Metric"
-msgstr "Мера"
+msgstr "Метрика"
 
 #, python-format
 msgid "Metric '%(metric)s' does not exist"
-msgstr "Мера '%(metric)s' не существует"
+msgstr "Метрика '%(metric)s' не существует"
 
 msgid "Metric Key"
-msgstr "Ключ меры"
+msgstr "Ключ метрики"
 
 #, python-format
 msgid "Metric ``%(metric_name)s`` not found in %(dataset_name)s."
-msgstr "Мера ``%(metric_name)s`` не найдена в %(dataset_name)s."
+msgstr "Метрика ``%(metric_name)s`` не найдена в %(dataset_name)s."
 
 msgid "Metric ascending"
-msgstr "Мера по возрастанию"
+msgstr "Метрика по возрастанию"
 
 msgid "Metric assigned to the [X] axis"
 msgstr "Показатель, отраженный на оси X"
@@ -7503,75 +7503,75 @@ msgid "Metric assigned to the [Y] axis"
 msgstr "Показатель, отраженный на оси Y"
 
 msgid "Metric change in value from `since` to `until`"
-msgstr "Изменение меры с `до` до `после`"
+msgstr "Изменение метрики с `до` до `после`"
 
 msgid "Metric currency"
-msgstr "Валюта меры"
+msgstr "Валюта метрики"
 
 msgid "Metric descending"
-msgstr "Мера по убыванию"
+msgstr "Метрика по убыванию"
 
 msgid "Metric factor change from `since` to `until`"
-msgstr "Коэффициент изменения меры с `до` до `после`"
+msgstr "Коэффициент изменения метрики с `до` до `после`"
 
 msgid "Metric for node values"
-msgstr "Мера для значений элементов"
+msgstr "Метрика для значений элементов"
 
 msgid "Metric for ordering"
-msgstr "Мера для сортировки"
+msgstr "Метрика для сортировки"
 
 msgid "Metric name"
-msgstr "Имя меры"
+msgstr "Имя метрики"
 
 #, python-format
 msgid "Metric name [%s] is duplicated"
-msgstr "Дубль имени меры [%s]"
+msgstr "Дубль имени метрики [%s]"
 
 msgid "Metric percent change in value from `since` to `until`"
-msgstr "Процентное изменение меры с `до` до `после`"
+msgstr "Процентное изменение метрики с `до` до `после`"
 
 msgid "Metric that defines the size of the bubble"
 msgstr "Показатель, определяющий размер пузяря"
 
 msgid "Metric to display bottom title"
-msgstr "Мера для отображения нижнего заголовка"
+msgstr "Метрика для отображения нижнего заголовка"
 
 msgid "Metric to use for ordering Top N values"
-msgstr "Мера для сортировки топовых значений"
+msgstr "Метрика для сортировки топовых значений"
 
 msgid "Metric used as a weight for the grid's coloring"
-msgstr "Мера, используемая как вес для раскрашивания сетки"
+msgstr "Метрика, используемая как вес для раскрашивания сетки"
 
 msgid "Metric used to calculate bubble size"
-msgstr "Мера, используемая для расчета размера пузырька"
+msgstr "Метрика, используемая для расчета размера пузырька"
 
 msgid "Metric used to control height"
-msgstr "Мера, используемая для регулирования высоты"
+msgstr "Метрика, используемая для регулирования высоты"
 
 msgid ""
 "Metric used to define how the top series are sorted if a series or cell limit is "
 "present. If undefined reverts to the first metric (where appropriate)."
 msgstr ""
-"Мера, используемая для определения того, как сортируются верхние категории, если "
+"Метрика, используемая для определения того, как сортируются верхние категории, если "
 "присутствует ограничение по категории или ячейке. Если не определено, "
-"возвращается к первой мере (где это уместно)."
+"возвращается к первой метрике (где это уместно)."
 
 msgid ""
 "Metric used to define how the top series are sorted if a series or row limit is "
 "present. If undefined reverts to the first metric (where appropriate)."
 msgstr ""
-"Мера, используемая для определения того, как сортируются верхние категории, если "
+"Метрика, используемая для определения того, как сортируются верхние категории, если "
 "присутствует ограничение по категории или строке. Если не определено, "
-"возвращается к первой мере (где это уместно)."
+"возвращается к первой метрике (где это уместно)."
 
 msgid "Metrics"
-msgstr "Меры"
+msgstr "Метрики"
 
 msgid "Metrics / Dimensions"
-msgstr "Меры / Измерения"
+msgstr "Метрики / Измерения"
 
 msgid "Metrics to show in the tooltip."
-msgstr "Меры для отображения во всплывающей подсказке."
+msgstr "Метрики для отображения во всплывающей подсказке."
 
 msgid "Middle"
 msgstr "Середина"
@@ -7761,7 +7761,7 @@ msgid "My column"
 msgstr "Мой столбец"
 
 msgid "My metric"
-msgstr "Моя мера"
+msgstr "Моя метрика"
 
 msgid "N/A"
 msgstr "Пусто"
@@ -8010,14 +8010,14 @@ msgid "No saved expressions found"
 msgstr "Не найдено сохраненных выражений"
 
 msgid "No saved metrics found"
-msgstr "Не найдено сохраненных мер"
+msgstr "Не найдено сохраненных метрик"
 
 msgid "No stored results found, you need to re-run your query"
 msgstr "Не найдены сохраненные результаты, необходимо повторно выполнить запрос"
 
 msgid "No such column found. To filter on a metric, try the Custom SQL tab."
 msgstr ""
-"Такой столбец не найден. Чтобы фильтровать по мере, попробуйте использовать "
+"Такой столбец не найден. Чтобы фильтровать по метрике, попробуйте использовать "
 "вкладку Свой SQL."
 
 msgid "No table columns"
@@ -8273,7 +8273,7 @@ msgid "One or many controls to pivot as columns"
 msgstr "Один или несколько параметров для отображения в виде сводных столбцов"
 
 msgid "One or many metrics to display"
-msgstr "Выберите одну или несколько мер для отображения"
+msgstr "Выберите одну или несколько метрик для отображения"
 
 msgid "One or more annotation layers failed loading."
 msgstr "Не удалось загрузить один или несколько слоев аннотаций."
@@ -8288,13 +8288,13 @@ msgid "One or more columns do not exist"
 msgstr "Один или несколько столбцов не существуют"
 
 msgid "One or more metrics already exist"
-msgstr "Одна или несколько мер уже существуют"
+msgstr "Одна или несколько метрик уже существуют"
 
 msgid "One or more metrics are duplicated"
-msgstr "Одна или несколько мер дублируются"
+msgstr "Одна или несколько метрик дублируются"
 
 msgid "One or more metrics do not exist"
-msgstr "Одна или несколько мер не существуют"
+msgstr "Одна или несколько метрик не существуют"
 
 msgid "One or more parameters needed to configure a database are missing."
 msgstr ""
@@ -8405,7 +8405,7 @@ msgid "Optional name of the data column."
 msgstr "Столбец с именами элементов (необязательно)"
 
 msgid "Optional warning about use of this metric"
-msgstr "Необязательное предупреждение об использовании этой меры"
+msgstr "Необязательное предупреждение об использовании этой метрики"
 
 msgid "Options"
 msgstr "Опции"
@@ -8427,7 +8427,7 @@ msgstr ""
 "Определяет порядок сортировки результатов запроса, которые используются как "
 "исходные данные для этой диаграммы. При достижении лимита строк/серий определяет, "
 "какие данные будут отсечены. Если не задано, по умолчанию используется первая "
-"мера (где применимо)."
+"метрика (где применимо)."
 
 msgid "Orientation"
 msgstr "Ориентация"
@@ -8673,10 +8673,10 @@ msgid "Percentage difference between the time periods"
 msgstr "Относительное изменение между периодами"
 
 msgid "Percentage metric calculation"
-msgstr "Расчет процентной меры"
+msgstr "Расчет процентной метрики"
 
 msgid "Percentage metrics"
-msgstr "Процентные меры"
+msgstr "Процентные метрики"
 
 msgid "Percentage threshold"
 msgstr "Процентный порог"
@@ -8722,10 +8722,10 @@ msgid "Pick a dimension from which categorical colors are defined"
 msgstr "Выберите измерение, на основе которого определяются категориальные цвета"
 
 msgid "Pick a metric for x, y and size"
-msgstr "Выберите меру для значений X, Y и размера"
+msgstr "Выберите метрику для значений X, Y и размера"
 
 msgid "Pick a metric to display"
-msgstr "Выберите меру для отображения"
+msgstr "Выберите метрику для отображения"
 
 msgid "Pick a name to help you identify this database."
 msgstr "Выберите имя для базы данных"
@@ -8740,7 +8740,7 @@ msgid "Pick a title for you annotation."
 msgstr "Выберите название для аннотации"
 
 msgid "Pick at least one metric"
-msgstr "Выберите хотя бы одну меру"
+msgstr "Выберите хотя бы одну метрику"
 
 msgid ""
 "Pick one or more columns that should be shown in the annotation. If you don't "
@@ -8922,10 +8922,10 @@ msgstr "Для продолжения выберите датасет и тип 
 #, python-format
 msgid ""
 "Please specify the Dataset ID for the ``%(name)s`` metric in the Jinja macro."
-msgstr "Укажите ID датасета для меры ``%(name)s`` в Jinja-макросе."
+msgstr "Укажите ID датасета для метрики ``%(name)s`` в Jinja-макросе."
 
 msgid "Please use 3 different metric labels"
-msgstr "Используйте три разных названия для мер"
+msgstr "Используйте три разных названия для метрик"
 
 msgid "Plot the distance (like flight paths) between origin and destination."
 msgstr "Изображает расстояние между пунктами отправления и назначения в виде дуг"
@@ -8935,7 +8935,7 @@ msgid ""
 "together as a line. This chart is useful for comparing multiple metrics across "
 "all of the samples or rows in the data."
 msgstr ""
-"Отображает меры для каждой строки данных по вертикали, соединяя их линией. Данный "
+"Отображает метрики для каждой строки данных по вертикали, соединяя их линией. Данный "
 "тип диаграммы полезен для сравнения нескольких показателей между всеми образцами "
 "или строками данных."
 
@@ -8967,7 +8967,7 @@ msgid "Points"
 msgstr "Маркеры"
 
 msgid "Points and clusters will update as the viewport is being changed"
-msgstr "Точки и кластеры будут обновляться по мере изменения области просмотра"
+msgstr "Точки и кластеры будут обновляться по метрике изменения области просмотра"
 
 msgid "Polygon Column"
 msgstr "Столбец с полигонами"
@@ -9049,7 +9049,7 @@ msgid "Primary"
 msgstr "Первичная"
 
 msgid "Primary Metric"
-msgstr "Основная мера"
+msgstr "Основная метрика"
 
 msgid "Primary key"
 msgstr "Первичный ключ"
@@ -9237,7 +9237,7 @@ msgid "Ratio"
 msgstr "Отношение"
 
 msgid "Raw records"
-msgstr "Сырые записи"
+msgstr "Исходные строки"
 
 msgid "Recently modified"
 msgstr "Измененные недавно"
@@ -9606,10 +9606,10 @@ msgid "Right Axis Format"
 msgstr "Формат правой оси"
 
 msgid "Right Axis Metric"
-msgstr "Мера для правой оси"
+msgstr "Метрика для правой оси"
 
 msgid "Right axis metric"
-msgstr "Мера для правой оси"
+msgstr "Метрика для правой оси"
 
 msgid "Right to Left"
 msgstr "Справа налево"
@@ -9956,7 +9956,7 @@ msgid "Saved expressions"
 msgstr "Сохраненные выражения"
 
 msgid "Saved metric"
-msgstr "Сохраненная мера"
+msgstr "Сохраненная метрика"
 
 msgid "Saved queries"
 msgstr "Сохраненные запросы"
@@ -10055,7 +10055,7 @@ msgid "Search / Filter"
 msgstr "Поиск / Фильтр"
 
 msgid "Search Metrics & Columns"
-msgstr "Поиск по мерам и столбцам"
+msgstr "Поиск по метрикам и столбцам"
 
 msgid "Search all charts"
 msgstr "Поиск по всем диаграммам"
@@ -10095,7 +10095,7 @@ msgid "Secondary"
 msgstr "Вторичная"
 
 msgid "Secondary Metric"
-msgstr "Вторичная мера"
+msgstr "Вторичная метрика"
 
 msgid "Secondary currency format"
 msgstr "Формат валюты вторичной оси"
@@ -10200,13 +10200,13 @@ msgid "Select a linear color scheme"
 msgstr "Выберите линейную цветовую схему"
 
 msgid "Select a metric to display on the right axis"
-msgstr "Выберите меру для отображения на правой оси"
+msgstr "Выберите метрику для отображения на правой оси"
 
 msgid ""
 "Select a metric to display. You can use an aggregation function on a column or "
 "write custom SQL to create a metric."
 msgstr ""
-"Выберите меру для отображения. Чтобы создать меру, также можно использовать "
+"Выберите метрику для отображения. Чтобы создать метрику, также можно использовать "
 "агрегатную функцию или написать свой SQL."
 
 msgid "Select a predefined CSS template to apply to your dashboard"
@@ -10340,15 +10340,15 @@ msgid ""
 "limit. You can use an aggregation function on a column or write custom SQL to "
 "create a percentage metric."
 msgstr ""
-"Выберите одну или несколько мер, чтобы отобразить их в доле от итого. Процентные "
-"меры будут вычислены только на основе данных, уместившихся в лимит строк. Чтобы "
-"создать меру, также можно использовать агрегатную функцию или написать свой SQL."
+"Выберите одну или несколько метрик, чтобы отобразить их в доле от итого. Процентные "
+"метрики будут вычислены только на основе данных, уместившихся в лимит строк. Чтобы "
+"создать метрику, также можно использовать агрегатную функцию или написать свой SQL."
 
 msgid ""
 "Select one or many metrics to display. You can use an aggregation function on a "
 "column or write custom SQL to create a metric."
 msgstr ""
-"Выберите одну или несколько мер для отображения. Чтобы создать меру, также можно "
+"Выберите одну или несколько метрик для отображения. Чтобы создать метрику, также можно "
 "использовать агрегатную функцию или написать свой SQL."
 
 msgid "Select operator"
@@ -10373,7 +10373,7 @@ msgid "Select roles"
 msgstr "Выберите роли"
 
 msgid "Select saved metrics"
-msgstr "Выберите сохраненные меры"
+msgstr "Выберите сохраненные метрики"
 
 msgid "Select saved queries"
 msgstr "Выберите сохраненные запросы"
@@ -10679,10 +10679,10 @@ msgid "Show Markers"
 msgstr "Показать маркеры"
 
 msgid "Show Metric Name"
-msgstr "Показать имя меры"
+msgstr "Показать имя метрики"
 
 msgid "Show Metric Names"
-msgstr "Показать имена мер"
+msgstr "Показать имена метрик"
 
 msgid "Show Range Filter"
 msgstr "Показать фильтр Диапазон"
@@ -10839,7 +10839,7 @@ msgid ""
 "Showcases how a metric changes as the funnel progresses. This classic chart is "
 "useful for visualizing drop-off between stages in a pipeline or lifecycle."
 msgstr ""
-"Отображает изменение показателя по мере сужения воронки. Эта классическая "
+"Отображает изменение показателя по метрике сужения воронки. Эта классическая "
 "диаграмма полезна для визуализации перехода между этапами процесса или жизненного "
 "цикла."
 
@@ -10871,7 +10871,19 @@ msgid "Sign in"
 msgstr "Вход"
 
 msgid "Sign in with"
-msgstr "Войти при помощи"
+msgstr "Войти с помощью"
+
+msgid "SUDIR"
+msgstr "СУДИР"
+
+msgid "Or with email and password:"
+msgstr "Или с помощью почты и пароля:"
+
+msgid "Email:"
+msgstr "Почта:"
+
+msgid "Please enter your email"
+msgstr "Пожалуйста, введите вашу почту"
 
 msgid "Significance Level"
 msgstr "Уровень значимости"
@@ -10880,13 +10892,13 @@ msgid "Simple"
 msgstr "Столбец"
 
 msgid "Simple ad-hoc metrics are not enabled for this dataset"
-msgstr "Простые ad-hoc меры не разрешены для этого датасета"
+msgstr "Простые ad-hoc метрики не разрешены для этого датасета"
 
 msgid "Single"
 msgstr "Один"
 
 msgid "Single Metric"
-msgstr "Одна мера"
+msgstr "Одна метрика"
 
 msgid "Single Value"
 msgstr "Единственное значение"
@@ -11018,7 +11030,7 @@ msgid "Sort Descending"
 msgstr "Сортировать по убыванию"
 
 msgid "Sort Metric"
-msgstr "Мера для сортировки"
+msgstr "Метрика для сортировки"
 
 msgid "Sort Series Ascending"
 msgstr "По возрастанию"
@@ -11046,7 +11058,7 @@ msgid "Sort by data"
 msgstr "По данным"
 
 msgid "Sort by metric"
-msgstr "Сортировка по мере"
+msgstr "Сортировка по метрике"
 
 msgid "Sort columns alphabetically"
 msgstr "Отсортировать столбцы в алфавитном порядке"
@@ -11637,7 +11649,7 @@ msgstr ""
 "трансформации величин\n"
 "          между стадиями системы. Этапы представлены узлами, связанными дугами,\n"
 "          отображающими потоки. Высота узла пропорциональна значению "
-"соответствующей меры,\n"
+"соответствующей метрики,\n"
 "          что обеспечивает наглядность распределения значений."
 
 msgid "The URL is missing the dataset_id or slice_id parameters."
@@ -11786,10 +11798,10 @@ msgid "The dataset associated with this chart no longer exists"
 msgstr "Датасет, связанный с этой диаграммой, больше не существует"
 
 msgid "The dataset column/metric that returns the values on your chart's x-axis."
-msgstr "Столбец или мера из датасета для отображения на оси X"
+msgstr "Столбец или метрика из датасета для отображения на оси X"
 
 msgid "The dataset column/metric that returns the values on your chart's y-axis."
-msgstr "Столбец или мера из датасета для отображения на оси Y"
+msgstr "Столбец или метрика из датасета для отображения на оси Y"
 
 msgid ""
 "The dataset columns will be automatically synced\n"
@@ -11958,7 +11970,7 @@ msgstr ""
 "меньшими значениями"
 
 msgid "The maximum value of metrics. It is an optional configuration"
-msgstr "Максимальное значение мер. Это необязательная настройка"
+msgstr "Максимальное значение метрик. Это необязательная настройка"
 
 #, python-format
 msgid ""
@@ -11990,7 +12002,7 @@ msgid ""
 "The minimum value of metrics. It is an optional configuration. If not set, it "
 "will be the minimum value of the data"
 msgstr ""
-"Минимальное значение мер. Это необязательная настройка. Если не задано, будет "
+"Минимальное значение метрик. Это необязательная настройка. Если не задано, будет "
 "использовано минимальное значение из данных"
 
 msgid "The name of the geometry column"
@@ -12163,7 +12175,7 @@ msgid "The port number is invalid."
 msgstr "Неверный порт"
 
 msgid "The primary metric is used to define the arc segment sizes"
-msgstr "Основная мера используется для определения размера сегмента"
+msgstr "Основная метрика используется для определения размера сегмента"
 
 msgid "The provided table was not found in the provided database"
 msgstr "Таблица не найдена в базе данных"
@@ -12879,7 +12891,7 @@ msgid ""
 "This field is used as a unique identifier to attach the metric to charts. It is "
 "also used as the alias in the SQL query."
 msgstr ""
-"Это поле используется как уникальный идентификатор меры при добавлении ее на "
+"Это поле используется как уникальный идентификатор метрики при добавлении ее на "
 "диаграммы. Также оно используется в качестве алиаса в SQL-запросе."
 
 msgid "This filter already exist on the report"
@@ -12940,7 +12952,7 @@ msgid "This may be triggered by:"
 msgstr "Возможные причины:"
 
 msgid "This metric might be incompatible with current dataset"
-msgstr "Эта мера может быть несовместима с этим датасетом"
+msgstr "Эта метрика может быть несовместима с этим датасетом"
 
 msgid "This name is already taken. Please choose another one."
 msgstr "Это имя уже занято. Пожалуйста, выберите другое."
@@ -13232,7 +13244,7 @@ msgstr ""
 "заголовок столбца."
 
 msgid "To filter on a metric, use Custom SQL tab."
-msgstr "Для фильтрации по мере используйте вкладку Свой SQL."
+msgstr "Для фильтрации по метрике используйте вкладку Свой SQL."
 
 msgid "To get a readable URL for your dashboard"
 msgstr "Для получения читаемого URL-адреса дашборда"
@@ -13247,7 +13259,7 @@ msgid "Tooltip (columns)"
 msgstr "Всплывающая подсказка (столбцы)"
 
 msgid "Tooltip (metrics)"
-msgstr "Всплывающая подсказка (меры)"
+msgstr "Всплывающая подсказка (метрики)"
 
 msgid "Tooltip Contents"
 msgstr "Содержимое подсказки"
@@ -13256,7 +13268,7 @@ msgid "Tooltip contents"
 msgstr "Содержимое всплывающей подсказки"
 
 msgid "Tooltip sort by metric"
-msgstr "Сортировать по мере"
+msgstr "Сортировать по метрике"
 
 msgid "Tooltip time format"
 msgstr "Формат времени"
@@ -13346,7 +13358,7 @@ msgid "Truncate Cells"
 msgstr "Обрезать текст"
 
 msgid "Truncate Metric"
-msgstr "Убрать имя меры"
+msgstr "Убрать имя метрики"
 
 msgid "Truncate X Axis"
 msgstr "Ограничить ось X"
@@ -13731,10 +13743,10 @@ msgid "Use current extent"
 msgstr "Использовать текущий масштаб"
 
 msgid "Use date formatting even when metric value is not a timestamp"
-msgstr "Отформатировать как дату, даже если мера представлена другим типом данных"
+msgstr "Отформатировать как дату, даже если метрика представлена другим типом данных"
 
 msgid "Use metrics as a top level group for columns or for rows"
-msgstr "Использовать меры как группы верхнего уровня для столбцов или строк"
+msgstr "Использовать метрики как группы верхнего уровня для столбцов или строк"
 
 msgid "Use only a single value."
 msgstr "Используйте только одно значение"
@@ -13993,7 +14005,7 @@ msgid ""
 "visualized using its own line of points and each metric is represented as an edge "
 "in the chart."
 msgstr ""
-"Визуализируйте меры для нескольких групп. Метрики представлены в виде ребер, а "
+"Визуализируйте метрики для нескольких групп. Метрики представлены в виде ребер, а "
 "каждая группа - набором точек на этих ребрах."
 
 msgid ""
@@ -14001,7 +14013,7 @@ msgid ""
 "the correlation or strength between two groups. Color is used to emphasize the "
 "strength of the link between each pair of groups."
 msgstr ""
-"Представьте значения меры для пар элементов из двух групп. Тепловые карты хорошо "
+"Представьте значения метрики для пар элементов из двух групп. Тепловые карты хорошо "
 "показывают корреляцию или силу связи между группами. Цвет соответствует силе этой "
 "связи для каждой пары."
 
@@ -14045,14 +14057,14 @@ msgid ""
 msgstr ""
 "Визуализирует, как показатель изменился с течением времени, используя цветовую "
 "шкалу и календарь. Серый цвет означает отсутствие значений, а цветовой градиент "
-"показывает величину меры для каждого дня."
+"показывает величину метрики для каждого дня."
 
 msgid ""
 "Visualizes how a single metric varies across a country's principal subdivisions "
 "(states, provinces, etc) on a choropleth map. Each subdivision's value is "
 "elevated when you hover over the corresponding geographic boundary."
 msgstr ""
-"Показывает на хороплет-карте, как меняется значение меры в зависимости от "
+"Показывает на хороплет-карте, как меняется значение метрики в зависимости от "
 "регионов страны (штатов, областей и т.п.). Регионы подсвечиваются при наведении "
 "на них."
 
@@ -14245,7 +14257,7 @@ msgstr ""
 "устанавливается в `.1%`"
 
 msgid "When a secondary metric is provided, a linear color scale is used."
-msgstr "Когда предоставляется вторичная мера, используется линейная цветовая схема."
+msgstr "Когда предоставляется вторичная метрика, используется линейная цветовая схема."
 
 msgid "When checked, the map will zoom to your data after each query"
 msgstr ""
@@ -14258,7 +14270,7 @@ msgstr ""
 
 msgid "When only a primary metric is provided, a categorical color scale is used."
 msgstr ""
-"Когда предоставляется только основная мера, используется категориальная цветовая "
+"Когда предоставляется только основная метрика, используется категориальная цветовая "
 "схема."
 
 msgid ""
@@ -14300,7 +14312,7 @@ msgstr ""
 "секционированному или индексированному полю типа дата/время."
 
 msgid "When using 'Group By' you are limited to use a single metric"
-msgstr "При использовании GROUP BY можно использовать только одну меру"
+msgstr "При использовании GROUP BY можно использовать только одну метрику"
 
 msgid "When using other than adaptive formatting, labels may overlap"
 msgstr ""
@@ -14371,10 +14383,10 @@ msgid "Whether to display the legend (toggles)"
 msgstr "Отобразить легенду (переключатель)"
 
 msgid "Whether to display the metric name"
-msgstr "Отобразить имя меры"
+msgstr "Отобразить имя метрики"
 
 msgid "Whether to display the metric name as a title"
-msgstr "Отобразить имя меры как название"
+msgstr "Отобразить имя метрики как название"
 
 msgid "Whether to display the min and max values of the X-axis"
 msgstr "Отобразить минимальное и максимальное значение на оси X"
@@ -14466,14 +14478,14 @@ msgid "Whether to sort descending or ascending"
 msgstr "Сортировать по убыванию или по возрастанию"
 
 msgid "Whether to sort results by the selected metric in descending order."
-msgstr "Сортировка результатов по выбранной мере в порядке убывания"
+msgstr "Сортировка результатов по выбранной метрике в порядке убывания"
 
 msgid "Whether to sort tooltip by the selected metric in descending order."
-msgstr "Сортировка по убыванию во всплывающей подсказке для выбранных мер"
+msgstr "Сортировка по убыванию во всплывающей подсказке для выбранных метрик"
 
 msgid "Whether to truncate metrics"
 msgstr ""
-"Убрать меру (например, AVG(...)) с легенды рядом с именем измерения и из таблицы "
+"Убрать метрику (например, AVG(...)) с легенды рядом с именем измерения и из таблицы "
 "результатов"
 
 msgid "Which country to plot the map for?"
@@ -14858,7 +14870,7 @@ msgid ""
 "You've changed datasets. Any controls with data (columns, metrics) that match "
 "this new dataset have been retained."
 msgstr ""
-"Вы изменили датасеты. Все элементы управления с данными (столбцами, мерами), "
+"Вы изменили датасеты. Все элементы управления с данными (столбцами, метриками), "
 "которые соответствуют новому датасету, были сохранены."
 
 msgid "Your changes will be lost if you leave without saving."
@@ -14949,8 +14961,8 @@ msgid ""
 "[optional] this secondary metric is used to define the color as a ratio against "
 "the primary metric. When omitted, the color is categorical and based on labels"
 msgstr ""
-"[необязательно] Вторичная мера используется для определения цвета как доли по "
-"отношению к основной мере. Если не выбрано, цвет сопоставляется категории."
+"[необязательно] Вторичная метрика используется для определения цвета как доли по "
+"отношению к основной метрике. Если не выбрано, цвет сопоставляется категории."
 
 msgid "[untitled]"
 msgstr "[без названия]"
@@ -15443,7 +15455,7 @@ msgid "meters"
 msgstr "метры"
 
 msgid "metric"
-msgstr "мера"
+msgstr "метрика"
 
 msgid "min"
 msgstr "минимум"
