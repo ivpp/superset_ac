@@ -156,7 +156,7 @@ module.exports = newManifest => {
     context: '/',
     target: backend,
     hostRewrite: true,
-    changeOrigin: true,
+    changeOrigin: false,
     cookieDomainRewrite: '', // remove cookie domain
     selfHandleResponse: true, // so that the onProxyRes takes care of sending the response
     onProxyRes(proxyResponse, request, response) {

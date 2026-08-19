@@ -33,6 +33,7 @@ import getBootstrapData from 'src/utils/getBootstrapData';
 
 type OAuthProvider = {
   name: string;
+  verbose_name: string;
   icon: string;
 };
 
@@ -101,6 +102,8 @@ export default function Login() {
   };
 
   const authType: AuthType = bootstrapData.common.conf.AUTH_TYPE;
+  const authOauthOrAuthDb: boolean =
+    bootstrapData.common.conf.AUTH_OAUTH_OR_AUTH_DB;
   const providers: Provider[] = bootstrapData.common.conf.AUTH_PROVIDERS;
   const authRegistration: boolean =
     bootstrapData.common.conf.AUTH_USER_REGISTRATION;
@@ -158,7 +161,91 @@ export default function Login() {
             </Form>
           </Flex>
         )}
-        {authType === AuthType.AuthOauth && (
+        {authType === AuthType.AuthOauth && authOauthOrAuthDb && (
+          <div>
+            <Flex justify="center" gap={0} vertical>
+              <Form layout="vertical" requiredMark="optional" form={form}>
+                {providers.map((provider: OAuthProvider) => (
+                  <Form.Item<LoginForm>>
+                    <Button
+                      href={buildProviderLoginUrl(provider.name)}
+                      block
+                      iconPosition="start"
+                      icon={getAuthIconElement(provider.name)}
+                    >
+                      {t('Sign in with')} {t(provider.verbose_name)}
+                    </Button>
+                  </Form.Item>
+                ))}
+              </Form>
+            </Flex>
+            <Flex justify="center" vertical gap="middle">
+              <Typography.Text type="secondary">
+                {t('Or with email and password:')}
+              </Typography.Text>
+              <Form
+                layout="vertical"
+                requiredMark="optional"
+                form={form}
+                onFinish={onFinish}
+              >
+                <Form.Item<LoginForm>
+                  label={<StyledLabel>{t('Email:')}</StyledLabel>}
+                  name="username"
+                  rules={[
+                    { required: true, message: t('Please enter your email') },
+                  ]}
+                >
+                  <Input
+                    autoFocus
+                    prefix={<Icons.UserOutlined iconSize="l" />}
+                    data-test="username-input"
+                  />
+                </Form.Item>
+                <Form.Item<LoginForm>
+                  label={<StyledLabel>{t('Password:')}</StyledLabel>}
+                  name="password"
+                  rules={[
+                    { required: true, message: t('Please enter your password') },
+                  ]}
+                >
+                  <Input.Password
+                    prefix={<Icons.KeyOutlined iconSize="l" />}
+                    data-test="password-input"
+                  />
+                </Form.Item>
+                <Form.Item label={null}>
+                  <Flex
+                    css={css`
+                      width: 100%;
+                    `}
+                  >
+                    <Button
+                      block
+                      type="primary"
+                      htmlType="submit"
+                      loading={loading}
+                      data-test="login-button"
+                    >
+                      {t('Sign in')}
+                    </Button>
+                    {authRegistration && (
+                      <Button
+                        block
+                        type="default"
+                        href="/register/"
+                        data-test="register-button"
+                      >
+                        {t('Register')}
+                      </Button>
+                    )}
+                  </Flex>
+                </Form.Item>
+              </Form>
+            </Flex>
+          </div>
+        )}
+        {authType === AuthType.AuthOauth && !authOauthOrAuthDb && (
           <Flex justify="center" gap={0} vertical>
             <Form layout="vertical" requiredMark="optional" form={form}>
               {providers.map((provider: OAuthProvider) => (
@@ -169,14 +256,13 @@ export default function Login() {
                     iconPosition="start"
                     icon={getAuthIconElement(provider.name)}
                   >
-                    {t('Sign in with')} {capitalize(provider.name)}
+                    {t('Sign in with')} {t(provider.verbose_name)}
                   </Button>
                 </Form.Item>
               ))}
             </Form>
           </Flex>
         )}
-
         {(authType === AuthType.AuthDB || authType === AuthType.AuthLDAP) && (
           <Flex justify="center" vertical gap="middle">
             <Typography.Text type="secondary">

@@ -20,6 +20,7 @@ attrs==25.3.0
     #   referencing
     #   requests-cache
     #   trio
+Authlib==1.6.9
 babel==2.17.0
     # via flask-babel
 backoff==2.2.1

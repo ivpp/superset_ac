@@ -423,10 +423,14 @@ def cached_common_bootstrap_data(  # pylint: disable=unused-argument
             oauth_providers.append(
                 {
                     "name": provider["name"],
+                    "verbose_name": provider.get("verbose_name") or provider["name"],
                     "icon": provider["icon"],
                 }
             )
         frontend_config["AUTH_PROVIDERS"] = oauth_providers
+        print(app.config["AUTH_OAUTH_OR_AUTH_DB"])
+        if app.config["AUTH_OAUTH_OR_AUTH_DB"]:
+            frontend_config["AUTH_OAUTH_OR_AUTH_DB"] = True
 
     bootstrap_data = {
         "application_root": app.config["APPLICATION_ROOT"],
