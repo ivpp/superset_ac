@@ -315,6 +315,16 @@ function ChartList(props: ChartListProps) {
     };
   };
 
+  const getUserName = (user?: {
+    first_name?: string;
+    last_name?: string;
+    username?: string;
+  }) => {
+    if (!user) return '';
+
+    return `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || '';
+  };
+
   const columns = useMemo(
     () => [
       {
@@ -370,16 +380,6 @@ function ChartList(props: ChartListProps) {
       {
         Cell: ({
           row: {
-            original: { viz_type: vizType },
-          },
-        }: any) => registry.get(vizType)?.name || vizType,
-        Header: t('Type'),
-        accessor: 'viz_type',
-        id: 'viz_type',
-      },
-      {
-        Cell: ({
-          row: {
             original: {
               datasource_name_text: dsNameTxt,
               datasource_url: dsUrl,
@@ -405,6 +405,54 @@ function ChartList(props: ChartListProps) {
         disableSortBy: true,
         size: 'xl',
         id: 'datasource_id',
+      },
+      {
+        Cell: ({
+          row: {
+            original: { owners = [] },
+          },
+        }: any) => <FacePile users={owners} />,
+        Header: t('Owners'),
+        accessor: 'owners',
+        disableSortBy: true,
+        size: 'xl',
+        id: 'owners',
+      },
+      {
+        Cell: ({
+          row: {
+            original: { changed_by: changedBy },
+          },
+        }: any) => getUserName(changedBy),
+        Header: t('Modified by'),
+        accessor: 'changed_by',
+        id: 'modified_by',
+        disableSortBy: true,
+        size: 'lg',
+      },
+      {
+        Cell: ({
+          row: {
+            original: {
+              changed_on_delta_humanized: changedOn,
+              changed_by: changedBy,
+            },
+          },
+        }: any) => <ModifiedInfo date={changedOn} user={changedBy} />,
+        Header: t('Last modified'),
+        accessor: 'last_saved_at',
+        size: 'xl',
+        id: 'last_saved_at',
+      },
+      {
+        Cell: ({
+          row: {
+            original: { viz_type: vizType },
+          },
+        }: any) => registry.get(vizType)?.name || vizType,
+        Header: t('Type'),
+        accessor: 'viz_type',
+        id: 'viz_type',
       },
       {
         Cell: ({
@@ -440,32 +488,6 @@ function ChartList(props: ChartListProps) {
         disableSortBy: true,
         hidden: !isFeatureEnabled(FeatureFlag.TaggingSystem),
         id: 'tags',
-      },
-      {
-        Cell: ({
-          row: {
-            original: { owners = [] },
-          },
-        }: any) => <FacePile users={owners} />,
-        Header: t('Owners'),
-        accessor: 'owners',
-        disableSortBy: true,
-        size: 'xl',
-        id: 'owners',
-      },
-      {
-        Cell: ({
-          row: {
-            original: {
-              changed_on_delta_humanized: changedOn,
-              changed_by: changedBy,
-            },
-          },
-        }: any) => <ModifiedInfo date={changedOn} user={changedBy} />,
-        Header: t('Last modified'),
-        accessor: 'last_saved_at',
-        size: 'xl',
-        id: 'last_saved_at',
       },
       {
         Cell: ({ row: { original } }: any) => {

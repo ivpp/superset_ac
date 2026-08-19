@@ -116,7 +116,15 @@ const Actions = styled.div`
   `}
 `;
 
+type DatasetUser = {
+  first_name?: string;
+  last_name?: string;
+  username?: string;
+  email?: string;
+};
+
 type Dataset = {
+  created_by: DatasetUser;
   changed_by_name: string;
   changed_by: string;
   changed_on_delta_humanized: string;
@@ -356,14 +364,40 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
       {
         Cell: ({
           row: {
-            original: { kind },
+            original: { owners = [] },
           },
-        }: any) => <DatasetTypeLabel datasetType={kind} />,
-        Header: t('Type'),
-        accessor: 'kind',
+        }: any) => <FacePile users={owners} />,
+        Header: t('Owners'),
+        id: 'owners',
         disableSortBy: true,
-        size: 'sm',
-        id: 'kind',
+        size: 'lg',
+      },
+      {
+        Cell: ({
+          row: {
+            original: { changed_by: changedBy },
+          },
+        }: any) =>
+          [changedBy?.first_name, changedBy?.last_name].filter(Boolean).join(' '),
+        Header: t('Modified by'),
+        accessor: 'changed_by.last_name',
+        size: 'lg',
+        id: "modified_by",
+        disableSortBy: true,
+      },
+      {
+        Cell: ({
+          row: {
+            original: {
+              changed_on_delta_humanized: changedOn,
+              changed_by: changedBy,
+            },
+          },
+        }: any) => <ModifiedInfo date={changedOn} user={changedBy} />,
+        Header: t('Last modified'),
+        accessor: 'changed_on_delta_humanized',
+        size: 'xl',
+        id: 'changed_on_delta_humanized',
       },
       {
         Header: t('Database'),
@@ -386,27 +420,14 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
       {
         Cell: ({
           row: {
-            original: { owners = [] },
+            original: { kind },
           },
-        }: any) => <FacePile users={owners} />,
-        Header: t('Owners'),
-        id: 'owners',
+        }: any) => <DatasetTypeLabel datasetType={kind} />,
+        Header: t('Type'),
+        accessor: 'kind',
         disableSortBy: true,
-        size: 'lg',
-      },
-      {
-        Cell: ({
-          row: {
-            original: {
-              changed_on_delta_humanized: changedOn,
-              changed_by: changedBy,
-            },
-          },
-        }: any) => <ModifiedInfo date={changedOn} user={changedBy} />,
-        Header: t('Last modified'),
-        accessor: 'changed_on_delta_humanized',
-        size: 'xl',
-        id: 'changed_on_delta_humanized',
+        size: 'sm',
+        id: 'kind',
       },
       {
         accessor: 'sql',
