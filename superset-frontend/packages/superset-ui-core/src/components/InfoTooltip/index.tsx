@@ -29,6 +29,7 @@ import {
 } from '@ant-design/icons';
 import { Button } from 'antd';
 import { Tooltip, TooltipProps, TooltipPlacement } from '../Tooltip';
+import DOMPurify from 'dompurify';
 
 export interface InfoTooltipProps {
   label?: string;
@@ -118,7 +119,7 @@ export const InfoTooltip = ({
   return (
     <Tooltip
       id={`${kebabCase(label) || Math.floor(Math.random() * 10000)}-tooltip`}
-      title={tooltip}
+      title={<div dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(String(tooltip))}}/>}
       placement={placement}
     >
       {iconEl}

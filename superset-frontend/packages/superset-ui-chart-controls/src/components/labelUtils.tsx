@@ -17,6 +17,7 @@
  * under the License.
  */
 import { ReactNode, RefObject } from 'react';
+import DOMPurify from 'dompurify';
 
 import { css, styled, t, GenericDataType } from '@superset-ui/core';
 import { ColumnMeta, Metric } from '@superset-ui/chart-controls';
@@ -52,7 +53,9 @@ const TooltipSection = ({
   text: ReactNode;
 }) => (
   <TooltipSectionWrapper>
-    <TooltipSectionLabel>{label}</TooltipSectionLabel>: <span>{text}</span>
+    <TooltipSectionLabel>{label}</TooltipSectionLabel>: <span
+      dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(String(text))}}>
+    </span>
   </TooltipSectionWrapper>
 );
 
