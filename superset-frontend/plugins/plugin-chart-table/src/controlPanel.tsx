@@ -664,7 +664,7 @@ const config: ControlPanelConfig = {
               type: 'CheckboxControl',
               label: t('Show cell bars'),
               renderTrigger: true,
-              default: true,
+              default: false,
               description: t(
                 'Whether to display a bar chart background in table columns',
               ),
@@ -692,7 +692,7 @@ const config: ControlPanelConfig = {
               type: 'CheckboxControl',
               label: t('Add colors to cell bars for +/-'),
               renderTrigger: true,
-              default: true,
+              default: false,
               description: t(
                 'Whether to colorize numeric values by whether they are positive or negative',
               ),

@@ -480,8 +480,8 @@ const transformProps = (
 
   const {
     align_pn: alignPositiveNegative = true,
-    color_pn: colorPositiveNegative = true,
-    show_cell_bars: showCellBars = true,
+    color_pn: colorPositiveNegative = false,
+    show_cell_bars: showCellBars = false,
     include_search: includeSearch = false,
     page_length: pageLength,
     server_pagination: serverPagination = false,

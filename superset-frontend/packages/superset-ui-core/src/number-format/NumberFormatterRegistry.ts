@@ -44,7 +44,7 @@ export default class NumberFormatterRegistry extends RegistryWithDefaultKey<
       NumberFormats.SMART_NUMBER_SIGNED,
       createSmartNumberFormatter({ signed: true }),
     );
-    this.setDefaultKey(NumberFormats.SMART_NUMBER);
+    this.setDefaultKey(NumberFormats.INTEGER);
     this.d3Format = DEFAULT_D3_FORMAT;
   }
 

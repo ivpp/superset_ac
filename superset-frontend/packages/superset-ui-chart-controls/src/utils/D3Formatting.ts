@@ -52,9 +52,9 @@ const d3Formatted: [string, string][] = [
 
 // input choices & options
 export const D3_FORMAT_OPTIONS: [string, string][] = [
+  ...d3Formatted,
   [NumberFormats.SMART_NUMBER, t('Adaptive formatting')],
   ['~g', t('Original value')],
-  ...d3Formatted,
   ['DURATION', t('Duration in ms (66000 => 1m 6s)')],
   ['DURATION_SUB', t('Duration in ms (1.40008 => 1ms 400µs 80ns)')],
   ['DURATION_COL', t('Duration in ms (10500 => 0:10.5)')],
