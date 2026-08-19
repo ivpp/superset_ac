@@ -19,8 +19,11 @@ from __future__ import annotations
 import contextlib
 import logging
 from typing import Any, TYPE_CHECKING
+from io import BytesIO
+import datetime
+import pandas as pd
 
-from flask import current_app as app, g, make_response, request, Response
+from flask import current_app as app, g, make_response, request, Response, url_for
 from flask_appbuilder.api import expose, protect
 from flask_babel import gettext as _
 from marshmallow import ValidationError
@@ -343,6 +346,93 @@ class ChartDataRestApi(ChartRestApi):
         result = async_command.run(form_data, get_user_id())
         return self.response(202, **result)
 
+    def get_export_metadata(self, form_data, datasource):
+
+        def concat_param(key):
+            return ", ".join([
+                i if isinstance(i, str) else i["sqlExpression"] or i["label"]
+                for i in form_data.get(key, [])
+            ])
+
+        def concat_filters():
+            filters = []
+            for fltr in form_data["adhoc_filters"]:
+                if fltr['expressionType'] == 'SIMPLE':
+                    filters.append(
+                        " ".join([fltr["subject"], fltr["operator"], str(fltr.get("comparator", ""))])
+                    )
+                elif fltr['expressionType'] == 'SQL':
+                    filters.append(
+                        " ".join([fltr["clause"], fltr["sqlExpression"]])
+                    )
+            return ", ".join(filters)
+
+        export_metadata = {}
+        export_metadata["export_time"] = datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+
+        if "slice_id" in form_data["url_params"].keys():
+            export_metadata["dataset_basic_url"] = url_for(
+                "ExploreView.root",
+                slice_id=form_data["url_params"]["slice_id"],
+                _external=True,
+            )
+        else:
+            export_metadata["dataset_basic_url"] = url_for(
+                "ExploreView.root",
+                datasource_type=form_data["url_params"]["datasource_type"],
+                datasource_id=form_data["url_params"]["datasource_id"],
+                _external=True,
+            )
+
+        export_metadata["database"] = datasource.database_name
+        export_metadata["schema"] = datasource.schema
+        export_metadata["table"] = datasource.table_name
+        export_metadata["chart_type"] = form_data["viz_type"].replace("_v2", "")
+
+        params = {}
+        if export_metadata["chart_type"] == "table":
+            params["query_mode"] = form_data["query_mode"]
+            if form_data["query_mode"] == "aggregate":
+                params["dimensions"] = concat_param("groupby")
+                params["metrics"] = concat_param("metrics")
+            if form_data["query_mode"] == "raw":
+                params["columns"] = concat_param("all_columns")
+            params["filters"] = concat_filters()
+        elif export_metadata["chart_type"] == "pivot_table":
+            params = {
+                "columns": concat_param("groupbyColumns"),
+                "rows": concat_param("groupbyRows"),
+                "metrics": concat_param("metrics"),
+                "apply_metrics_on": form_data["metricsLayout"],
+                "filters": concat_filters()
+            }
+
+        export_metadata.update(params)
+        export_metadata = {k: str(v) for k, v in export_metadata.items()}
+
+        return export_metadata
+
+    def add_export_metadata(self, data, form_data, datasource, is_csv_format):
+
+        if not is_csv_format:
+            export_metadata = self.get_export_metadata(form_data, datasource)
+            metadata = pd.DataFrame.from_dict(
+                export_metadata,
+                orient="index"
+            ).reset_index()
+            buffer = BytesIO(data)
+            with pd.ExcelWriter(buffer, mode='a', engine='openpyxl') as writer:
+                metadata.to_excel(
+                    writer,
+                    sheet_name='info',
+                    header=False,
+                    index=False
+                )
+            buffer.seek(0)
+            return buffer
+
+        return data
+
     def _send_chart_response(  # noqa: C901
         self,
         result: dict[Any, Any],
@@ -371,6 +461,7 @@ class ChartDataRestApi(ChartRestApi):
             if len(result["queries"]) == 1:
                 # return single query results
                 data = result["queries"][0]["data"]
+                data = self.add_export_metadata(data, form_data, datasource, is_csv_format)
                 if is_csv_format:
                     encoding = app.config["CSV_EXPORT"].get("encoding", "utf-8-sig")
                     return CsvResponse(
