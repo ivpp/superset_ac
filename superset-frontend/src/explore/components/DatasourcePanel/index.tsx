@@ -120,15 +120,27 @@ const BORDER_WIDTH = 2;
 const sortColumns = (slice: DatasourcePanelColumn[]) =>
   [...slice]
     .sort((col1, col2) => {
-      if (col1?.is_dttm && !col2?.is_dttm) {
-        return -1;
-      }
-      if (col2?.is_dttm && !col1?.is_dttm) {
-        return 1;
-      }
-      return 0;
-    })
-    .sort((a, b) => (b?.is_certified ?? 0) - (a?.is_certified ?? 0));
+        if ( (col1.description ?? "") < (col2.description ?? "")){
+          return -1;
+        }
+        if ( (col1.description ?? "") > (col2.description ?? "")){
+          return 1;
+        }
+        return 0;
+      })
+
+const sortMetrics = (slice: Metric[]) =>
+  [...slice]
+    .sort((met1, met2) => {
+        if ((met1.description ?? "") < (met2.description ?? "")){
+          return -1;
+        }
+        if ((met1.description ?? "") > (met2.description ?? "")){
+          return 1;
+        }
+        return 0;
+      })
+
 
 export default function DataSourcePanel({
   datasource,
@@ -229,16 +241,21 @@ export default function DataSourcePanel({
     [filteredColumns],
   );
 
+  const sortedMetrics = useMemo(
+    () => sortMetrics(filteredMetrics),
+    [filteredMetrics],
+  );
+
   const folders = useMemo(
     () =>
       transformDatasourceWithFolders(
-        filteredMetrics,
+        sortedMetrics,
         sortedColumns,
         _folders,
         allowedMetrics,
         allowedColumns,
       ),
-    [_folders, filteredMetrics, sortedColumns],
+    [_folders, sortedMetrics, sortedColumns],
   );
 
   const showInfoboxCheck = () => {

@@ -322,6 +322,7 @@ const AdhocFilterEditPopoverSimpleTabContent: FC<Props> = props => {
     ),
     autoFocus: !subject,
     placeholder: '',
+    filterSort: undefined,
   };
 
   subjectSelectProps.placeholder =
@@ -331,6 +332,20 @@ const AdhocFilterEditPopoverSimpleTabContent: FC<Props> = props => {
   columns = props.options.filter(
     option => 'column_name' in option && option.column_name,
   );
+
+  columns = columns.sort((col1, col2) => {
+    if (
+      (('description' in col1 && col1.description) || "")
+      < (('description' in col2 && col2.description ) || "")){
+      return -1; 
+    }
+    if (
+      (('description' in col1 && col1.description) || "")
+      > (('description' in col2 && col2.description ) || "")){
+      return 1;
+    }
+    return 0;
+  })  
 
   const operatorSelectProps = {
     placeholder: t(
@@ -452,6 +467,9 @@ const AdhocFilterEditPopoverSimpleTabContent: FC<Props> = props => {
           ('column_name' in column && column.column_name) ||
           ('optionName' in column && column.optionName) ||
           '',
+        filter_str: 
+            ('verbose_name' in column && column.verbose_name) 
+            + " " + ('column_name' in column && column.column_name),
         key:
           ('id' in column && column.id) ||
           ('optionName' in column && column.optionName) ||

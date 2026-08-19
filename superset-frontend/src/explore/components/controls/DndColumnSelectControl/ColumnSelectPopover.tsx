@@ -157,6 +157,16 @@ const ColumnSelectPopover = ({
     [columns],
   );
 
+  const simpleColumnsSorted = simpleColumns.sort((col1, col2) => {
+    if ((col1.description ?? "") < (col2.description ?? "")){
+      return -1;
+    }
+    if ((col1.description ?? "") > (col2.description ?? "")){
+      return 1;
+    }
+    return 0;
+  })
+
   const onSqlExpressionChange = useCallback(
     sqlExpression => {
       setAdhocColumn({ label, sqlExpression, expressionType: 'SQL' });
@@ -183,7 +193,7 @@ const ColumnSelectPopover = ({
 
   const onSimpleColumnChange = useCallback(
     selectedColumnName => {
-      const selectedColumn = simpleColumns.find(
+      const selectedColumn = simpleColumnsSorted.find(
         col => col.column_name === selectedColumnName,
       );
       setSelectedCalculatedColumn(undefined);
@@ -193,7 +203,7 @@ const ColumnSelectPopover = ({
         selectedColumn?.verbose_name || selectedColumn?.column_name || '',
       );
     },
-    [setLabel, simpleColumns],
+    [setLabel, simpleColumnsSorted],
   );
 
   const defaultActiveTabKey = initialAdhocColumn
@@ -407,7 +417,7 @@ const ColumnSelectPopover = ({
             disabled: disabledTabs.has('simple'),
             children: (
               <>
-                {isTemporal && simpleColumns.length === 0 ? (
+                {isTemporal && simpleColumnsSorted.length === 0 ? (
                   <EmptyState
                     image="empty.svg"
                     size="small"
@@ -439,14 +449,16 @@ const ColumnSelectPopover = ({
                       onChange={onSimpleColumnChange}
                       allowClear
                       autoFocus={!selectedSimpleColumn}
-                      placeholder={t('%s column(s)', simpleColumns.length)}
-                      options={simpleColumns.map(simpleColumn => ({
+                      placeholder={t('%s column(s)', simpleColumnsSorted.length)}
+                      options={simpleColumnsSorted.map(simpleColumn => ({
                         value: simpleColumn.column_name,
+                        filter_str: simpleColumn.verbose_name + " " + simpleColumn.column_name,
                         label: (
                           <StyledColumnOption column={simpleColumn} showType />
                         ),
                         key: simpleColumn.column_name,
                       }))}
+                      filterSort={undefined}
                     />
                   </FormItem>
                 )}

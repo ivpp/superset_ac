@@ -311,6 +311,26 @@ export default class AdhocMetricEditPopover extends PureComponent {
     const { adhocMetric, savedMetric } = this.state;
     const keywords = sqlKeywords.concat(getColumnKeywords(columns));
 
+    const columnsSorted = columns.sort((col1, col2) => {
+      if ((col1.description ?? "") < (col2.description ?? "")){
+        return -1;
+      }
+      if ((col1.description ?? "") > (col2.description ?? "")){
+        return 1;
+      }
+      return 0;
+    })
+
+    const savedMetricsOptionsSorted = savedMetricsOptions.sort((col1, col2) => {
+      if ((col1.description ?? "") < (col2.description ?? "")){
+        return -1;
+      }
+      if ((col1.description ?? "") > (col2.description ?? "")){
+        return 1;
+      }
+      return 0;
+    })
+
     const columnValue =
       (adhocMetric.column && adhocMetric.column.column_name) ||
       adhocMetric.inferSqlExpressionColumn();
@@ -318,11 +338,12 @@ export default class AdhocMetricEditPopover extends PureComponent {
     // autofocus on column if there's no value in column; otherwise autofocus on aggregate
     const columnSelectProps = {
       ariaLabel: t('Select column'),
-      placeholder: t('%s column(s)', columns.length),
+      placeholder: t('%s column(s)', columnsSorted.length),
       value: columnValue,
       onChange: this.onColumnChange,
       allowClear: true,
       autoFocus: !columnValue,
+      filterSort: undefined
     };
 
     const aggregateSelectProps = {
@@ -332,15 +353,17 @@ export default class AdhocMetricEditPopover extends PureComponent {
       onChange: this.onAggregateChange,
       allowClear: true,
       autoFocus: !!columnValue,
+      filterSort: undefined
     };
 
     const savedSelectProps = {
       ariaLabel: t('Select saved metrics'),
-      placeholder: t('%s saved metric(s)', savedMetricsOptions?.length ?? 0),
+      placeholder: t('%s saved metric(s)', savedMetricsOptionsSorted?.length ?? 0),
       value: savedMetric?.metric_name,
       onChange: this.onSavedMetricChange,
       allowClear: true,
       autoFocus: true,
+      filterSort: undefined
     };
 
     const stateIsValid = adhocMetric.isValid() || savedMetric?.metric_name;
@@ -381,12 +404,13 @@ export default class AdhocMetricEditPopover extends PureComponent {
               key: SAVED_TAB_KEY,
               label: t('Saved'),
               children:
-                ensureIsArray(savedMetricsOptions).length > 0 ? (
+                ensureIsArray(savedMetricsOptionsSorted).length > 0 ? (
                   <FormItem label={t('Saved metric')}>
                     <StyledSelect
-                      options={ensureIsArray(savedMetricsOptions).map(
+                      options={ensureIsArray(savedMetricsOptionsSorted).map(
                         savedMetric => ({
                           value: savedMetric.metric_name,
+                          filter_str: savedMetric.verbose_name + " " + savedMetric.metric_name,
                           label: this.renderMetricOption(savedMetric),
                           key: savedMetric.id,
                         }),
@@ -444,8 +468,9 @@ export default class AdhocMetricEditPopover extends PureComponent {
                 <>
                   <FormItem label={t('column')}>
                     <Select
-                      options={columns.map(column => ({
+                      options={columnsSorted.map(column => ({
                         value: column.column_name,
+                        filter_str: column.verbose_name + " " + column.metric_name,
                         key: column.id,
                         label: this.renderColumnOption(column),
                       }))}
