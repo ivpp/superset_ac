@@ -28,7 +28,7 @@ from flask import current_app
 from flask_babel import gettext as _
 from pandas import DateOffset
 
-from superset.common.chart_data import ChartDataResultFormat
+from superset.common.chart_data import ChartDataResultFormat, ChartDataResultType
 from superset.common.db_query_status import QueryStatus
 from superset.common.query_actions import get_query_results
 from superset.common.utils import dataframe_utils
@@ -998,7 +998,13 @@ class QueryContextProcessor:
                 df.columns = [verbose_map.get(column, column) for column in columns]
 
             result = None
-            if self._query_context.result_format == ChartDataResultFormat.CSV:
+            if (
+                self._query_context.result_format == ChartDataResultFormat.CSV
+                or (
+                    self._query_context.result_format == ChartDataResultFormat.XLSX
+                    and self._query_context.result_type == ChartDataResultType.POST_PROCESSED
+                )
+            ):
                 result = csv.df_to_escaped_csv(
                     df, index=include_index, **current_app.config["CSV_EXPORT"]
                 )

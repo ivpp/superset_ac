@@ -54,7 +54,7 @@ def df_to_excel(df: pd.DataFrame, **kwargs: Any) -> Any:
 
 
 def apply_column_types(
-    df: pd.DataFrame, column_types: list[GenericDataType]
+    df: pd.DataFrame, column_types: list[GenericDataType], decimal: str = "."
 ) -> pd.DataFrame:
     """
     Applies the column types to the dataframe to prepare for an excel export
@@ -66,6 +66,8 @@ def apply_column_types(
     for column, column_type in zip(df.columns, column_types, strict=False):
         if column_type == GenericDataType.NUMERIC:
             try:
+                if decimal == ",":
+                    df[column] = df[column].astype(str).str.replace(",", ".")
                 df[column] = pd.to_numeric(df[column])
                 # if the number is too large, convert it to a string
                 # Excel does not support numbers larger than 10^15

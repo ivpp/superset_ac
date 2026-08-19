@@ -25,20 +25,22 @@ In order to do that, we reproduce the post-processing in Python for these chart 
 """
 
 import logging
-from io import StringIO
+from io import StringIO, BytesIO
 from typing import Any, Optional, TYPE_CHECKING, Union
 
 import numpy as np
 import pandas as pd
 from flask_babel import gettext as __
+from flask import current_app as app
 
-from superset.common.chart_data import ChartDataResultFormat
+from superset.common.chart_data import ChartDataResultFormat, ChartDataResultType
 from superset.extensions import event_logger
 from superset.utils.core import (
     extract_dataframe_dtypes,
     get_column_names,
     get_metric_names,
 )
+from superset.utils import csv, excel
 
 if TYPE_CHECKING:
     from superset.connectors.sqla.models import BaseDatasource
@@ -152,60 +154,60 @@ def pivot_df(  # pylint: disable=too-many-locals, too-many-arguments, too-many-s
     if not isinstance(df.columns, pd.MultiIndex):
         df.columns = pd.MultiIndex.from_tuples([(str(i),) for i in df.columns])
 
-    if show_rows_total:
-        # add subtotal for each group and overall total; we start from the
-        # overall group, and iterate deeper into subgroups
-        groups = df.columns
-        if not apply_metrics_on_rows:
-            for col in df.columns:
-                # we need to replace the temporary placeholder with either a string
-                # or np.nan, depending on the column type so that they can sum correctly
-                if pd.api.types.is_numeric_dtype(df[col]):
-                    df[col].replace("SUPERSET_PANDAS_NAN", np.nan, inplace=True)
-                else:
-                    df[col].replace("SUPERSET_PANDAS_NAN", "nan", inplace=True)
-        else:
-            # when we applied metrics on rows, we switched the columns and rows
-            # so checking column type doesn't apply. Replace everything with np.nan
-            df.replace("SUPERSET_PANDAS_NAN", np.nan, inplace=True)
-        for level in range(df.columns.nlevels):
-            subgroups = {group[:level] for group in groups}
-            for subgroup in subgroups:
-                slice_ = df.columns.get_loc(subgroup)
-                subtotal = pivot_v2_aggfunc_map[aggfunc](df.iloc[:, slice_], axis=1)
-                depth = df.columns.nlevels - len(subgroup) - 1
-                total = metric_name if level == 0 else __("Subtotal")
-                subtotal_name = tuple([*subgroup, total, *([""] * depth)])  # noqa: C409
-                # insert column after subgroup
-                df.insert(int(slice_.stop), subtotal_name, subtotal)
+    # if show_rows_total:
+    #     # add subtotal for each group and overall total; we start from the
+    #     # overall group, and iterate deeper into subgroups
+    #     groups = df.columns
+    #     if not apply_metrics_on_rows:
+    #         for col in df.columns:
+    #             # we need to replace the temporary placeholder with either a string
+    #             # or np.nan, depending on the column type so that they can sum correctly
+    #             if pd.api.types.is_numeric_dtype(df[col]):
+    #                 df[col].replace("SUPERSET_PANDAS_NAN", np.nan, inplace=True)
+    #             else:
+    #                 df[col].replace("SUPERSET_PANDAS_NAN", "nan", inplace=True)
+    #     else:
+    #         # when we applied metrics on rows, we switched the columns and rows
+    #         # so checking column type doesn't apply. Replace everything with np.nan
+    #         df.replace("SUPERSET_PANDAS_NAN", np.nan, inplace=True)
+    #     for level in range(df.columns.nlevels):
+    #         subgroups = {group[:level] for group in groups}
+    #         for subgroup in subgroups:
+    #             slice_ = df.columns.get_loc(subgroup)
+    #             subtotal = pivot_v2_aggfunc_map[aggfunc](df.iloc[:, slice_], axis=1)
+    #             depth = df.columns.nlevels - len(subgroup) - 1
+    #             total = metric_name if level == 0 else __("Subtotal")
+    #             subtotal_name = tuple([*subgroup, total, *([""] * depth)])  # noqa: C409
+    #             # insert column after subgroup
+    #             df.insert(int(slice_.stop), subtotal_name, subtotal)
 
-    if rows and show_columns_total:
-        # add subtotal for each group and overall total; we start from the
-        # overall group, and iterate deeper into subgroups
-        groups = df.index
-        for level in range(df.index.nlevels):
-            subgroups = {group[:level] for group in groups}
-            for subgroup in subgroups:
-                try:
-                    slice_ = df.index.get_loc(subgroup)
-                except Exception:  # pylint: disable=broad-except
-                    logger.exception(
-                        "Error getting location for subgroup %s from %s",
-                        subgroup,
-                        groups,
-                    )
-                    raise
+    # if rows and show_columns_total:
+    #     # add subtotal for each group and overall total; we start from the
+    #     # overall group, and iterate deeper into subgroups
+    #     groups = df.index
+    #     for level in range(df.index.nlevels):
+    #         subgroups = {group[:level] for group in groups}
+    #         for subgroup in subgroups:
+    #             try:
+    #                 slice_ = df.index.get_loc(subgroup)
+    #             except Exception:  # pylint: disable=broad-except
+    #                 logger.exception(
+    #                     "Error getting location for subgroup %s from %s",
+    #                     subgroup,
+    #                     groups,
+    #                 )
+    #                 raise
 
-                subtotal = pivot_v2_aggfunc_map[aggfunc](
-                    df.iloc[slice_, :].apply(pd.to_numeric, errors="coerce"), axis=0
-                )
-                depth = groups.nlevels - len(subgroup) - 1
-                total = metric_name if level == 0 else __("Subtotal")
-                subtotal.name = tuple([*subgroup, total, *([""] * depth)])  # noqa: C409
-                # insert row after subgroup
-                df = pd.concat(
-                    [df[: slice_.stop], subtotal.to_frame().T, df[slice_.stop :]]
-                )
+    #             subtotal = pivot_v2_aggfunc_map[aggfunc](
+    #                 df.iloc[slice_, :].apply(pd.to_numeric, errors="coerce"), axis=0
+    #             )
+    #             depth = groups.nlevels - len(subgroup) - 1
+    #             total = metric_name if level == 0 else __("Subtotal")
+    #             subtotal.name = tuple([*subgroup, total, *([""] * depth)])  # noqa: C409
+    #             # insert row after subgroup
+    #             df = pd.concat(
+    #                 [df[: slice_.stop], subtotal.to_frame().T, df[slice_.stop :]]
+    #             )
 
     # if we want to apply the metrics on the rows we need to pivot the
     # dataframe back
@@ -219,6 +221,11 @@ def pivot_df(  # pylint: disable=too-many-locals, too-many-arguments, too-many-s
         columns={"SUPERSET_PANDAS_NAN": np.nan},
         inplace=True,
     )
+
+    if rows:
+        df.index.names = rows
+    elif metrics:
+        df.index.names = metrics
 
     return df
 
@@ -339,8 +346,23 @@ def apply_client_processing(  # noqa: C901
 
         if query["result_format"] == ChartDataResultFormat.JSON:
             df = pd.DataFrame.from_dict(data)
-        elif query["result_format"] == ChartDataResultFormat.CSV:
-            df = pd.read_csv(StringIO(data))
+        elif (
+            query["result_format"] == ChartDataResultFormat.CSV
+            or (
+                query["result_format"] == ChartDataResultFormat.XLSX
+                and result["query_context"].result_type == ChartDataResultType.POST_PROCESSED
+            )
+        ):
+            df = pd.read_csv(
+                StringIO(data),
+                sep=app.config["CSV_EXPORT"].get("sep", ","),
+                dtype=object
+            )
+            df = excel.apply_column_types(
+                df,
+                query["coltypes"],
+                decimal=app.config["CSV_EXPORT"].get("decimal", ".")
+            )
 
         # convert all columns to verbose (label) name
         if datasource:
@@ -359,29 +381,40 @@ def apply_client_processing(  # noqa: C901
         # Flatten hierarchical columns/index since they are represented as
         # `Tuple[str]`. Otherwise encoding to JSON later will fail because
         # maps cannot have tuples as their keys in JSON.
-        processed_df.columns = [
-            (
-                " ".join(str(name) for name in column).strip()
-                if isinstance(column, tuple)
-                else column
-            )
-            for column in processed_df.columns
-        ]
-        processed_df.index = [
-            (
-                " ".join(str(name) for name in index).strip()
-                if isinstance(index, tuple)
-                else index
-            )
-            for index in processed_df.index
-        ]
-
+        # processed_df.columns = [
+        #     (
+        #         " ".join(str(name) for name in column).strip()
+        #         if isinstance(column, tuple)
+        #         else column
+        #     )
+        #     for column in processed_df.columns
+        # ]
+        # processed_df.index = [
+        #     (
+        #         " ".join(str(name) for name in index).strip()
+        #         if isinstance(index, tuple)
+        #         else index
+        #     )
+        #     for index in processed_df.index
+        # ]
+        if viz_type == "pivot_table_v2":
+            processed_df = processed_df.astype(float)
         if query["result_format"] == ChartDataResultFormat.JSON:
             query["data"] = processed_df.to_dict()
         elif query["result_format"] == ChartDataResultFormat.CSV:
-            buf = StringIO()
-            processed_df.to_csv(buf, index=show_default_index)
-            buf.seek(0)
-            query["data"] = buf.getvalue()
+            # buf = StringIO()
+            # processed_df.to_csv(buf, index=show_default_index, sep=";", decimal=",")
+            # buf.seek(0)
+            # query["data"] = buf.getvalue()
+            query["data"] = csv.df_to_escaped_csv(
+                processed_df,
+                index=show_default_index,
+                **app.config["CSV_EXPORT"]
+            )
+        elif (
+            query["result_format"] == ChartDataResultFormat.XLSX
+            and result["query_context"].result_type == ChartDataResultType.POST_PROCESSED
+        ):
+            query["data"] = excel.df_to_excel(processed_df)
 
     return result
