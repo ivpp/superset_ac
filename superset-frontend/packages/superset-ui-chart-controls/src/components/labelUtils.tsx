@@ -18,7 +18,7 @@
  */
 import { ReactNode, RefObject } from 'react';
 
-import { css, styled, t } from '@superset-ui/core';
+import { css, styled, t, GenericDataType } from '@superset-ui/core';
 import { ColumnMeta, Metric } from '@superset-ui/chart-controls';
 
 const TooltipSectionWrapper = styled.div`
@@ -63,11 +63,14 @@ export const getColumnLabelText = (column: ColumnMeta): string =>
   column.verbose_name || column.column_name;
 
 export const getColumnTypeTooltipNode = (column: ColumnMeta): ReactNode => {
-  if (!column.type) {
+  if (column.type_generic === null || column.type_generic === undefined) {
     return null;
   }
 
-  return <TooltipSection label={t('Column type')} text={column.type} />;
+  const colType = Object.keys(GenericDataType).find(
+    key => GenericDataType[key as keyof typeof GenericDataType] === column.type_generic
+  )
+  return <TooltipSection label={t('Column type')} text={colType}/>;
 };
 
 export const getColumnTooltipNode = (
