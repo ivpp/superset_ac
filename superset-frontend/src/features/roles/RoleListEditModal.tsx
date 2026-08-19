@@ -123,7 +123,14 @@ function RoleListEditModal({
     fetchPaginatedData({
       endpoint: `/api/v1/security/users/`,
       pageSize: 100,
-      setData: setRoleUsers,
+      setData: users =>
+        setRoleUsers(
+          [...users].sort((a, b) =>
+            a.username.localeCompare(b.username, undefined, {
+              sensitivity: 'base',
+            }),
+          ),
+        ),
       filters,
       setLoadingState: (loading: boolean) => setLoadingRoleUsers(loading),
       loadingKey: 'roleUsers',

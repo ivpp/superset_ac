@@ -113,7 +113,7 @@ const AsyncSelect = forwardRef(
       allowClear,
       allowNewOptions = false,
       ariaLabel,
-      autoClearSearchValue = false,
+      autoClearSearchValue = true,
       fetchOnlyOnSearch,
       filterOption = true,
       header = null,
@@ -159,6 +159,7 @@ const AsyncSelect = forwardRef(
     const [loadingEnabled, setLoadingEnabled] = useState(!lazyLoading);
     const [allValuesLoaded, setAllValuesLoaded] = useState(false);
     const selectValueRef = useRef(selectValue);
+    const inputValueRef = useRef(inputValue);
     const fetchedQueries = useRef(new Map<string, number>());
     const mappedMode = isSingleMode ? undefined : 'multiple';
     const allowFetch = !fetchOnlyOnSearch || inputValue;
@@ -182,6 +183,10 @@ const AsyncSelect = forwardRef(
     useEffect(() => {
       selectValueRef.current = selectValue;
     }, [selectValue]);
+
+    useEffect(() => {
+      inputValueRef.current = inputValue;
+    }, [inputValue]);
 
     const sortSelectedFirst = useCallback(
       (a: AntdLabeledValue, b: AntdLabeledValue) =>
@@ -238,23 +243,29 @@ const AsyncSelect = forwardRef(
           'value',
         );
         setSelectValue(selectedItem);
+        selectValueRef.current = selectedItem;
         if (valueChanged) {
           fireOnChange();
         }
       } else {
-        setSelectValue(previousState => {
-          const array = ensureIsArray(previousState);
-          const value = getValue(selectedItem);
-          // Tokenized values can contain duplicated values
-          if (!hasOption(value, array)) {
-            const result = [...array, selectedItem];
-            return isLabeledValue(selectedItem)
-              ? (result as AntdLabeledValue[])
-              : (result as (string | number)[]);
-          }
-          return previousState;
-        });
+        const array = ensureIsArray(selectValueRef.current);
+        const value = getValue(selectedItem);
+        // Tokenized values can contain duplicated values
+        if (!hasOption(value, array)) {
+          const result = [...array, selectedItem];
+          const nextValue = isLabeledValue(selectedItem)
+            ? (result as AntdLabeledValue[])
+            : (result as (string | number)[]);
+
+          setSelectValue(nextValue);
+          selectValueRef.current = nextValue;
+        } else {
+          setSelectValue(selectValueRef.current);
+        }
         fireOnChange();
+      }
+      if (autoClearSearchValue) {
+        setInputValue('');
       }
       onSelect?.(selectedItem, option);
     };
@@ -325,7 +336,7 @@ const AsyncSelect = forwardRef(
         }
         const key = getQueryCacheKey(search, page, pageSize);
         const cachedCount = fetchedQueries.current.get(key);
-        if (cachedCount !== undefined) {
+        if (cachedCount !== undefined && !(search === '' && page === 0)) {
           setTotalCount(cachedCount);
           setIsLoading(false);
           return;
@@ -335,6 +346,10 @@ const AsyncSelect = forwardRef(
         const fetchOptions = options as SelectOptionsPagePromise;
         fetchOptions(search, page, pageSize)
           .then(({ data, totalCount }: SelectOptionsTypePage) => {
+            if (search && inputValueRef.current !== search) {
+              return;
+            }
+
             const mergedData = mergeData(data);
             fetchedQueries.current.set(key, totalCount);
             setTotalCount(totalCount);

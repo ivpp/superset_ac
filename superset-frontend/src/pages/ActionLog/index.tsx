@@ -78,7 +78,7 @@ function ActionLogList() {
           filterValue: string,
           page: number,
           pageSize: number,
-        ) => fetchUserOptions(filterValue, page, pageSize, addDangerToast),
+        ) => fetchUserOptions(filterValue, addDangerToast),
       },
       {
         Header: t('Dashboard Id'),

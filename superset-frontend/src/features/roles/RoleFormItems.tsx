@@ -41,6 +41,27 @@ interface UsersFieldProps {
   loading: boolean;
 }
 
+const sortOptionObjects = <
+  T extends { label: string; value: string | number },
+>(
+  options: T[],
+) => [...options].sort((a, b) => a.label.localeCompare(b.label));
+
+const sortIdsByOptions = (
+  ids: Array<string | number> = [],
+  options: Array<{ label: string; value: string | number }>,
+) =>
+  [...ids].sort((a, b) => {
+    const labelA = options.find(option => option.value === a)?.label || '';
+    const labelB = options.find(option => option.value === b)?.label || '';
+
+    return labelA.localeCompare(labelB);
+  });
+
+const sortUserOptions = (
+  users: Array<{ label: string; value: string | number }> = [],
+) => [...users].sort((a, b) => a.label.localeCompare(b.label));
+
 export const RoleNameField = () => (
   <FormItem
     name="roleName"
@@ -53,43 +74,71 @@ export const RoleNameField = () => (
 
 export const PermissionsField: FC<PermissionsFieldProps> = ({
   permissions,
-}) => (
-  <FormItem name="rolePermissions" label={t('Permissions')}>
-    <Select
-      mode="multiple"
+}) => {
+  const permissionOptions = sortOptionObjects(
+    permissions.map(permission => ({
+      label: permission.label,
+      value: permission.id,
+    })),
+  );
+
+  return (
+    <FormItem
       name="rolePermissions"
-      options={permissions.map(permission => ({
-        label: permission.label,
-        value: permission.id,
-      }))}
-      getPopupContainer={trigger => trigger.closest('.ant-modal-content')}
-      data-test="permissions-select"
-    />
-  </FormItem>
-);
+      label={t('Permissions')}
+      getValueFromEvent={value => sortIdsByOptions(value || [], permissionOptions)}
+    >
+      <Select
+        mode="multiple"
+        name="rolePermissions"
+        options={permissionOptions}
+        getPopupContainer={trigger => trigger.closest('.ant-modal-content')}
+        data-test="permissions-select"
+        maxTagCount={50}
+      />
+    </FormItem>
+  );
+};
 
 export const UsersField = ({ addDangerToast, loading }: UsersFieldProps) => (
-  <FormItem name="roleUsers" label={t('Users')}>
+  <FormItem
+    name="roleUsers"
+    label={t('Users')}
+    getValueFromEvent={value => sortUserOptions(value || [])}
+  >
     <AsyncSelect
       name="roleUsers"
       mode="multiple"
       placeholder={t('Select users')}
-      options={(filterValue, page, pageSize) =>
-        fetchUserOptions(filterValue, page, pageSize, addDangerToast)
-      }
+      options={filterValue => fetchUserOptions(filterValue, addDangerToast)}
       loading={loading}
       data-test="roles-select"
+      maxTagCount={50}
     />
   </FormItem>
 );
 
-export const GroupsField: FC<GroupsFieldProps> = ({ groups }) => (
-  <FormItem name="roleGroups" label={t('Groups')}>
-    <Select
-      mode="multiple"
+export const GroupsField: FC<GroupsFieldProps> = ({ groups }) => {
+  const groupOptions = sortOptionObjects(
+    groups.map(group => ({
+      label: group.name,
+      value: group.id,
+    })),
+  );
+
+  return (
+    <FormItem
       name="roleGroups"
-      options={groups.map(group => ({ label: group.name, value: group.id }))}
-      data-test="groups-select"
-    />
-  </FormItem>
-);
+      label={t('Groups')}
+      getValueFromEvent={value => sortIdsByOptions(value || [], groupOptions)}
+    >
+      <Select
+        mode="multiple"
+        name="roleGroups"
+        options={groupOptions}
+        data-test="groups-select"
+        maxTagCount={50}
+      />
+    </FormItem>
+  );
+};

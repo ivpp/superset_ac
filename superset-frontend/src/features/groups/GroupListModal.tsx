@@ -88,14 +88,26 @@ function GroupListModal({
   };
 
   const requiredFields = ['name'];
+  const roleOptions = roles
+    .map(role => ({
+      value: role.id,
+      label: role.name,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+  const sortRoleIds = (roleIds: number[] = []) =>
+    [...roleIds].sort((a, b) => {
+      const roleA = roleOptions.find(role => role.value === a)?.label || '';
+      const roleB = roleOptions.find(role => role.value === b)?.label || '';
+      return roleA.localeCompare(roleB);
+    });
   const initialValues = {
     ...group,
-    roles: group?.roles?.map(role => role.id) || [],
+    roles: sortRoleIds(group?.roles?.map(role => role.id) || []),
     users:
       group?.users?.map(user => ({
         value: user.id,
         label: user.username,
-      })) || [],
+      })).sort((a, b) => a.label.localeCompare(b.label)) || [],
   };
 
   return (
@@ -130,26 +142,35 @@ function GroupListModal({
           placeholder={t("Enter the group's description")}
         />
       </FormItem>
-      <FormItem name="roles" label={t('Roles')}>
+      <FormItem
+        name="roles"
+        label={t('Roles')}
+        getValueFromEvent={value => sortRoleIds(value || [])}>
         <Select
           name="roles"
           mode="multiple"
           placeholder={t('Select roles')}
-          options={roles.map(role => ({
-            value: role.id,
-            label: role.name,
-          }))}
+          options={roleOptions}
           getPopupContainer={trigger => trigger.closest('.ant-modal-content')}
+          maxTagCount={50}
         />
       </FormItem>
-      <FormItem name="users" label={t('Users')}>
+      <FormItem
+        name="users"
+        label={t('Users')}
+        getValueFromEvent={value =>
+          [...(value || [])].sort((a, b) =>
+            String(a.label).localeCompare(String(b.label)),
+          )
+        }>
         <AsyncSelect
           name="users"
           mode="multiple"
           placeholder={t('Select users')}
-          options={(filterValue, page, pageSize) =>
-            fetchUserOptions(filterValue, page, pageSize, addDangerToast)
+          options={(filterValue) =>
+            fetchUserOptions(filterValue, addDangerToast)
           }
+          maxTagCount={50}
         />
       </FormItem>
     </FormModal>

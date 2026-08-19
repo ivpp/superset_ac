@@ -91,7 +91,7 @@ const Select = forwardRef(
       allowNewOptions = false,
       allowSelectAll = true,
       ariaLabel,
-      autoClearSearchValue = false,
+      autoClearSearchValue = true,
       filterOption = true,
       header = null,
       headerPosition = 'top',
@@ -137,6 +137,7 @@ const Select = forwardRef(
     );
     const [onChangeCount, setOnChangeCount] = useState(0);
     const previousChangeCount = usePrevious(onChangeCount, 0);
+    const selectValueRef = useRef(selectValue);
     const fireOnChange = useCallback(
       () => setOnChangeCount(onChangeCount + 1),
       [onChangeCount],
@@ -147,6 +148,10 @@ const Select = forwardRef(
         setMaxTagCount(isDropdownVisible ? 0 : 1);
       }
     }, [isDropdownVisible, oneLine]);
+
+    useEffect(() => {
+      selectValueRef.current = selectValue;
+    }, [selectValue]);
 
     // Prevent maxTagCount change during click events to avoid click target disappearing
     const [stableMaxTagCount, setStableMaxTagCount] = useState(maxTagCount);
@@ -178,8 +183,8 @@ const Select = forwardRef(
 
     const sortSelectedFirst = useCallback(
       (a: AntdLabeledValue, b: AntdLabeledValue) =>
-        sortSelectedFirstHelper(a, b, selectValue),
-      [selectValue],
+        sortSelectedFirstHelper(a, b, selectValueRef.current),
+      [],
     );
 
     const sortComparatorWithSearch = useCallback(
@@ -191,7 +196,7 @@ const Select = forwardRef(
           sortSelectedFirst,
           sortComparator,
         ),
-      [inputValue, sortComparator, isDropdownVisible],
+      [inputValue, sortComparator, isDropdownVisible, sortSelectedFirst],
     );
 
     const initialOptions = useMemo(
@@ -299,53 +304,68 @@ const Select = forwardRef(
           'value',
         );
         setSelectValue(selectedItem);
+        selectValueRef.current = selectedItem;
         if (valueChanged) {
           fireOnChange();
         }
       } else {
-        setSelectValue(previousState => {
-          const array = ensureIsArray(previousState);
-          const value = getValue(selectedItem);
-          if (!hasOption(value, array)) {
-            const result = [...array, selectedItem];
-            if (
-              result.length === selectAllEligible.length &&
-              selectAllEnabled
-            ) {
-              return isLabeledValue(selectedItem)
-                ? ([...result] as AntdLabeledValue[])
-                : ([...result] as (string | number)[]);
-            }
-            return result as AntdLabeledValue[];
+        const array = ensureIsArray(selectValueRef.current);
+        const value = getValue(selectedItem);
+        if (!hasOption(value, array)) {
+          const result = [...array, selectedItem];
+          let nextValue: AntdLabeledValue[] | (string | number)[];
+
+          if (
+            result.length === selectAllEligible.length &&
+            selectAllEnabled
+          ) {
+            nextValue = isLabeledValue(selectedItem)
+              ? ([...result] as AntdLabeledValue[])
+              : ([...result] as (string | number)[]);
+          } else {
+            nextValue = result as AntdLabeledValue[];
           }
-          return previousState;
-        });
+
+          setSelectValue(nextValue);
+          selectValueRef.current = nextValue;
+        } else {
+          setSelectValue(selectValueRef.current);
+        }
         fireOnChange();
       }
+
+      if (autoClearSearchValue) {
+        setInputValue('');
+        setIsSearching(false);
+        setVisibleOptions(fullSelectOptions.slice().sort(sortSelectedFirst));
+      }
+
       onSelect?.(selectedItem, option);
     };
 
     const clear = () => {
       if (isSingleMode) {
         setSelectValue(undefined);
+        selectValueRef.current = undefined;
       } else {
-        setSelectValue(
-          fullSelectOptions
-            .filter(
-              option => option.disabled && hasOption(option.value, selectValue),
-            )
-            .map(option =>
-              labelInValue
-                ? {
-                    label: option.label,
-                    value: option.value,
-                  }
-                : option.value,
-            )
-            .filter(
-              (val): val is RawValue => val !== null && val !== undefined,
-            ),
-        );
+        const nextValue = fullSelectOptions
+          .filter(
+            option => option.disabled && hasOption(option.value, selectValue),
+          )
+          .map(option =>
+            labelInValue
+              ? {
+                  label: option.label,
+                  value: option.value,
+                }
+              : option.value,
+          )
+          .filter(
+            (val): val is RawValue => val !== null && val !== undefined,
+          );
+
+        setSelectValue(nextValue);
+        selectValueRef.current = nextValue;
       }
       fireOnChange();
     };
@@ -356,6 +376,7 @@ const Select = forwardRef(
           element => getValue(element) !== getValue(value),
         );
         setSelectValue(array);
+        selectValueRef.current = array;
 
         // removes new option
         if (option.isNewOption) {
@@ -470,6 +491,7 @@ const Select = forwardRef(
       });
 
       setSelectValue(newValues);
+      selectValueRef.current = newValues;
       fireOnChange();
     }, [
       isSingleMode,
@@ -491,6 +513,7 @@ const Select = forwardRef(
       }) as AntdLabeledValue[];
 
       setSelectValue(newValues);
+      selectValueRef.current = newValues;
       fireOnChange();
     }, [isSingleMode, enabledOptions, selectValue, fireOnChange]);
 
@@ -571,6 +594,7 @@ const Select = forwardRef(
 
     useEffect(() => {
       setSelectValue(value);
+      selectValueRef.current = value;
     }, [value]);
 
     const handleOnBlur = (event: FocusEvent<HTMLElement>) => {
@@ -680,6 +704,7 @@ const Select = forwardRef(
         const value = getPastedTextValue(pastedText);
         if (value) {
           setSelectValue(value);
+          selectValueRef.current = value;
         }
       } else {
         const token = tokenSeparators.find(token => pastedText.includes(token));
@@ -708,15 +733,19 @@ const Select = forwardRef(
           setVisibleOptions(updatedOptions);
         }
         if (labelInValue) {
-          setSelectValue(previous => [
-            ...((previous || []) as AntdLabeledValue[]),
+          const nextValue = [
+            ...((selectValue || []) as AntdLabeledValue[]),
             ...(values as AntdLabeledValue[]),
-          ]);
+          ];
+          setSelectValue(nextValue);
+          selectValueRef.current = nextValue;
         } else {
-          setSelectValue(previous => [
-            ...((previous || []) as string[]),
+          const nextValue = [
+            ...((selectValue || []) as string[]),
             ...(values as string[]),
-          ]);
+          ];
+          setSelectValue(nextValue);
+          selectValueRef.current = nextValue;
         }
       }
       fireOnChange();

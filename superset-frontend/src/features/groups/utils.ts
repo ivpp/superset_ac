@@ -39,33 +39,90 @@ export const deleteGroup = async (groupId: number) =>
     endpoint: `/api/v1/security/groups/${groupId}`,
   });
 
-export const fetchUserOptions = async (
-  filterValue: string,
-  page: number,
-  pageSize: number,
-  addDangerToast: (msg: string) => void,
-) => {
-  const query = rison.encode({
-    filter: filterValue,
-    page,
-    page_size: pageSize,
-    order_column: 'username',
-    order_direction: 'asc',
-  });
+type User = {
+  id: number;
+  username?: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+};
 
-  try {
+const fetchUsersByColumn = async (
+  col: 'username' | 'first_name' | 'last_name' | 'email',
+  value: string,
+  pageSize = 100,
+) => {
+  const allUsers: User[] = [];
+  let page = 0;
+  let totalCount = 0;
+
+  do {
+    const query = rison.encode({
+      filters: [
+        {
+          col,
+          opr: 'ct', // contains
+          value,
+        },
+      ],
+      page,
+      page_size: pageSize,
+      order_column: 'username',
+      order_direction: 'asc',
+    });
+
     const response = await SupersetClient.get({
       endpoint: `/api/v1/security/users/?q=${query}`,
     });
 
     const results = response.json?.result || [];
+    totalCount = response.json?.count ?? 0;
+
+    allUsers.push(...results);
+    page += 1;
+  } while (allUsers.length < totalCount);
+
+  return allUsers;
+};
+
+export const fetchUserOptions = async (
+  filterValue: string,
+  addDangerToast: (msg: string) => void,
+) => {
+  const value = filterValue.trim();
+
+  try {
+    const columns: Array<'username' | 'first_name' | 'last_name' | 'email'> =
+      value ? ['username', 'first_name', 'last_name', 'email'] : ['username'];
+
+    const results = await Promise.all(
+      columns.map(col => fetchUsersByColumn(col, value)),
+    );
+
+    const usersById = new Map<number, User>();
+
+    results.flat().forEach(user => {
+      usersById.set(user.id, user);
+    });
+
+    const data = Array.from(usersById.values())
+      .map(user => {
+        const fullName = [user.last_name, user.first_name]
+          .filter(Boolean)
+          .join(' ');
+
+        return {
+          value: user.id,
+          label: fullName
+            ? `${fullName} (${user.username})`
+            : user.username || user.email || String(user.id),
+        };
+      })
+      .sort((a, b) => a.label.localeCompare(b.label));
 
     return {
-      data: results.map((user: any) => ({
-        value: user.id,
-        label: user.username,
-      })),
-      totalCount: response.json?.count ?? 0,
+      data,
+      totalCount: data.length,
     };
   } catch (error) {
     addDangerToast(t('There was an error while fetching users'));

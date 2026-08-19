@@ -309,7 +309,7 @@ function RolesList({ addDangerToast, addSuccessToast, user }: RolesListProps) {
         operator: FilterOperator.RelationOneMany,
         unfilteredLabel: t('All'),
         fetchSelects: async (filterValue, page, pageSize) =>
-          fetchUserOptions(filterValue, page, pageSize, addDangerToast),
+          fetchUserOptions(filterValue, addDangerToast),
         dropdownStyle: { minWidth: WIDER_DROPDOWN_WIDTH },
       },
       {

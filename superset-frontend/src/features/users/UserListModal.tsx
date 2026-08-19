@@ -110,11 +110,34 @@ function UserListModal({
         'password',
         'confirmPassword',
       ];
-
+  const roleOptions = roles
+    .map(role => ({
+      value: role.id,
+      label: role.name,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+  const groupOptions = groups
+    .map(group => ({
+      value: group.id,
+      label: group.name,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+  const sortRoleIds = (roleIds: number[] = []) =>
+    [...roleIds].sort((a, b) => {
+      const roleA = roleOptions.find(role => role.value === a)?.label || '';
+      const roleB = roleOptions.find(role => role.value === b)?.label || '';
+      return roleA.localeCompare(roleB);
+    });
+  const sortGroupIds = (groupIds: number[] = []) =>
+    [...groupIds].sort((a, b) => {
+      const groupA = groupOptions.find(group => group.value === a)?.label || '';
+      const groupB = groupOptions.find(group => group.value === b)?.label || '';
+      return groupA.localeCompare(groupB);
+    });
   const initialValues = {
     ...user,
-    roles: user?.roles?.map(role => role.id) || [],
-    groups: user?.groups?.map(group => group.id) || [],
+    roles: sortRoleIds(user?.roles?.map(role => role.id) || []),
+    groups: sortGroupIds(user?.groups?.map(group => group.id) || []),
   };
 
   return (
@@ -194,18 +217,17 @@ function UserListModal({
             label={t('Roles')}
             dependencies={['groups']}
             rules={[atLeastOneRoleOrGroup('groups')]}
+            getValueFromEvent={value => sortRoleIds(value || [])}
           >
             <Select
               name="roles"
               mode="multiple"
               placeholder={t('Select roles')}
-              options={roles.map(role => ({
-                value: role.id,
-                label: role.name,
-              }))}
+              options={roleOptions}
               getPopupContainer={trigger =>
                 trigger.closest('.ant-modal-content')
               }
+              maxTagCount={50}
             />
           </FormItem>
           <FormItem
@@ -213,18 +235,17 @@ function UserListModal({
             label={t('Groups')}
             dependencies={['roles']}
             rules={[atLeastOneRoleOrGroup('roles')]}
+            getValueFromEvent={value => sortGroupIds(value || [])}
           >
             <Select
               name="groups"
               mode="multiple"
               placeholder={t('Select groups')}
-              options={groups.map(group => ({
-                value: group.id,
-                label: group.name,
-              }))}
+              options={groupOptions}
               getPopupContainer={trigger =>
                 trigger.closest('.ant-modal-content')
               }
+              maxTagCount={50}
             />
           </FormItem>
           {!isEditMode && (
