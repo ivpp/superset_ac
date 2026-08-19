@@ -52,6 +52,65 @@ export default function AdhocFilterEditPopoverSqlTabContent({
     aceEditorRef?.current?.editor.resize();
   }, [adhocFilter]);
 
+  useEffect(() => {
+    const stopPopoverCloseFromAceAutocomplete = (event: Event) => {
+      event.stopPropagation();
+    };
+
+    const bindAceAutocomplete = () => {
+      const autocomplete = document.querySelector('.ace_autocomplete');
+
+      if (!autocomplete) {
+        return undefined;
+      }
+
+      autocomplete.addEventListener(
+        'mousedown',
+        stopPopoverCloseFromAceAutocomplete,
+      );
+      autocomplete.addEventListener(
+        'mouseup',
+        stopPopoverCloseFromAceAutocomplete,
+      );
+      autocomplete.addEventListener(
+        'click',
+        stopPopoverCloseFromAceAutocomplete,
+      );
+
+      return () => {
+        autocomplete.removeEventListener(
+          'mousedown',
+          stopPopoverCloseFromAceAutocomplete,
+        );
+        autocomplete.removeEventListener(
+          'mouseup',
+          stopPopoverCloseFromAceAutocomplete,
+        );
+        autocomplete.removeEventListener(
+          'click',
+          stopPopoverCloseFromAceAutocomplete,
+        );
+      };
+    };
+
+    let cleanupAutocomplete = bindAceAutocomplete();
+
+    const observer = new MutationObserver(() => {
+      cleanupAutocomplete?.();
+      cleanupAutocomplete = bindAceAutocomplete();
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    return () => {
+      cleanupAutocomplete?.();
+      observer.disconnect();
+    };
+  }, []);
+
   const onSqlExpressionClauseChange = (clause: string) => {
     onChange(
       adhocFilter.duplicateWith({

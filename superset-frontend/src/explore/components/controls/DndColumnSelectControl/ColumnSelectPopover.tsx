@@ -218,6 +218,65 @@ const ColumnSelectPopover = ({
   }, [defaultActiveTabKey, getCurrentTab, setSelectedTab]);
 
   useEffect(() => {
+    const stopPopoverCloseFromAceAutocomplete = (event: Event) => {
+      event.stopPropagation();
+    };
+
+    const bindAceAutocomplete = () => {
+      const autocomplete = document.querySelector('.ace_autocomplete');
+
+      if (!autocomplete) {
+        return undefined;
+      }
+
+      autocomplete.addEventListener(
+        'mousedown',
+        stopPopoverCloseFromAceAutocomplete,
+      );
+      autocomplete.addEventListener(
+        'mouseup',
+        stopPopoverCloseFromAceAutocomplete,
+      );
+      autocomplete.addEventListener(
+        'click',
+        stopPopoverCloseFromAceAutocomplete,
+      );
+
+      return () => {
+        autocomplete.removeEventListener(
+          'mousedown',
+          stopPopoverCloseFromAceAutocomplete,
+        );
+        autocomplete.removeEventListener(
+          'mouseup',
+          stopPopoverCloseFromAceAutocomplete,
+        );
+        autocomplete.removeEventListener(
+          'click',
+          stopPopoverCloseFromAceAutocomplete,
+        );
+      };
+    };
+
+    let cleanupAutocomplete = bindAceAutocomplete();
+
+    const observer = new MutationObserver(() => {
+      cleanupAutocomplete?.();
+      cleanupAutocomplete = bindAceAutocomplete();
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    return () => {
+      cleanupAutocomplete?.();
+      observer.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
     /* if the adhoc column is not set (because it was never edited) but the
      * tab is selected and the label has changed, then we need to set the
      * adhoc column manually */

@@ -109,6 +109,8 @@ export default class AdhocMetricEditPopover extends PureComponent {
     this.handleAceEditorRef = this.handleAceEditorRef.bind(this);
     this.refreshAceEditor = this.refreshAceEditor.bind(this);
     this.getDefaultTab = this.getDefaultTab.bind(this);
+    this.moveAceAutocompleteInsidePopover =
+      this.moveAceAutocompleteInsidePopover.bind(this);
 
     this.state = {
       adhocMetric: this.props.adhocMetric,
@@ -235,6 +237,7 @@ export default class AdhocMetricEditPopover extends PureComponent {
       }),
       savedMetric: undefined,
     }));
+    setTimeout(this.moveAceAutocompleteInsidePopover, 0);
   }
 
   onDragDown(e) {
@@ -271,6 +274,7 @@ export default class AdhocMetricEditPopover extends PureComponent {
   handleAceEditorRef(ref) {
     if (ref) {
       this.aceEditorRef = ref;
+      setTimeout(this.moveAceAutocompleteInsidePopover, 0);
     }
   }
 
@@ -280,6 +284,19 @@ export default class AdhocMetricEditPopover extends PureComponent {
         this.aceEditorRef.editor?.resize?.();
       }
     }, 0);
+  }
+
+  moveAceAutocompleteInsidePopover() {
+    const popover = document.getElementById('metrics-edit-popover');
+    const autocomplete = document.querySelector('.ace_autocomplete');
+
+    if (
+      popover &&
+      autocomplete &&
+      !popover.contains(autocomplete)
+    ) {
+      popover.appendChild(autocomplete);
+    }
   }
 
   renderColumnOption(option) {
