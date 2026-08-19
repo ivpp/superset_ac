@@ -372,7 +372,11 @@ class ChartDataRestApi(ChartRestApi):
                 # return single query results
                 data = result["queries"][0]["data"]
                 if is_csv_format:
-                    return CsvResponse(data, headers=generate_download_headers("csv"))
+                    encoding = app.config["CSV_EXPORT"].get("encoding", "utf-8-sig")
+                    return CsvResponse(
+                        data.encode(encoding),
+                        headers=generate_download_headers("csv"),
+                    )
 
                 return XlsxResponse(data, headers=generate_download_headers("xlsx"))
 
