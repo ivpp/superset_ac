@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { useMemo, useState, useEffect, useRef, RefObject } from 'react';
+import { useMemo, useState, useEffect, useRef, useCallback, RefObject } from 'react';
 import {
   css,
   GenericDataType,
@@ -36,9 +36,9 @@ import {
   Input,
   Popover,
   Radio,
+  Tooltip,
 } from '@superset-ui/core/components';
-import { CopyToClipboard } from 'src/components';
-import { prepareCopyToClipboardTabularData } from 'src/utils/common';
+import { useToasts } from 'src/components/MessageToasts/withToasts';
 import { getTimeColumns, setTimeColumns } from './utils';
 
 export const CellNull = styled('span')`
@@ -58,32 +58,195 @@ export const CopyButton = styled(Button)`
   }
 `;
 
+
+const escapeClipboardHtml = (value: unknown) =>
+  String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+const prepareCopyToClipboardTsvData = (
+  data: TabularDataRow[],
+  columns: string[],
+) =>
+  [
+    columns.join('\t'),
+    ...data.map(row =>
+      columns
+        .map(column =>
+          String(row[column] ?? '')
+            .replace(/\r?\n/g, ' ')
+            .replace(/\t/g, ' '),
+        )
+        .join('\t'),
+    ),
+  ].join('\n');
+
+const getExcelCellStyle = (columnType?: GenericDataType) => {
+  if (columnType === GenericDataType.String) {
+    return ` style="mso-number-format:'\\@';"`;
+  }
+
+  return '';
+};
+
+const prepareCopyToClipboardHtmlData = (
+  data: TabularDataRow[],
+  columns: string[],
+  columnTypes?: GenericDataType[],
+) => `
+<html>
+<head>
+  <meta charset="utf-8" />
+</head>
+<body>
+  <table>
+    <thead>
+      <tr>
+        ${columns
+          .map(column => `<th>${escapeClipboardHtml(column)}</th>`)
+          .join('')}
+      </tr>
+    </thead>
+    <tbody>
+      ${data
+        .map(
+          row => `
+        <tr>
+          ${columns
+            .map((column, index) => {
+              const columnType = columnTypes?.[index];
+              const value = row[column];
+              return `<td${getExcelCellStyle(columnType)}>${escapeClipboardHtml(value)}</td>`;
+            })
+            .join('')}
+        </tr>
+      `,
+        )
+        .join('')}
+    </tbody>
+  </table>
+</body>
+</html>`;
+
+const writeTextFallbackToClipboard = (text: string) => {
+  if (typeof document === 'undefined') {
+    return false;
+  }
+
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', '');
+  textarea.style.position = 'fixed';
+  textarea.style.left = '-9999px';
+  textarea.style.top = '-9999px';
+
+  document.body.appendChild(textarea);
+  textarea.select();
+
+  let copied = false;
+  try {
+    copied = document.execCommand('copy');
+  } finally {
+    document.body.removeChild(textarea);
+  }
+
+  return copied;
+};
+
+const writeTableToClipboard = async ({
+  text,
+  html,
+}: {
+  text: string;
+  html: string;
+}) => {
+  const clipboard = globalThis.navigator?.clipboard;
+
+  if (
+    clipboard?.write &&
+    typeof globalThis.ClipboardItem !== 'undefined' &&
+    typeof Blob !== 'undefined'
+  ) {
+    await clipboard.write([
+      new ClipboardItem({
+        'text/plain': new Blob([text], { type: 'text/plain' }),
+        'text/html': new Blob([html], { type: 'text/html' }),
+      }),
+    ]);
+    return true;
+  }
+
+  if (clipboard?.writeText) {
+    await clipboard.writeText(text);
+    return true;
+  }
+
+  return writeTextFallbackToClipboard(text);
+};
+
+type TabularDataRow = Record<string, unknown>;
+
 export const CopyToClipboardButton = ({
   data,
   columns,
+  columnTypes,
+  disabled = false,
 }: {
-  data?: Record<string, any>;
+  data?: TabularDataRow[];
   columns?: string[];
-}) => (
-  <CopyToClipboard
-    text={
-      data && columns ? prepareCopyToClipboardTabularData(data, columns) : ''
+  columnTypes?: GenericDataType[];
+  disabled?: boolean;
+}) => {
+  const theme = useTheme();
+  const { addSuccessToast } = useToasts();
+
+  const handleCopy = useCallback(async () => {
+    if (disabled || !data || !columns) {
+      return;
     }
-    wrapped={false}
-    copyNode={
-      <Icons.CopyOutlined
-        iconSize="l"
-        aria-label={t('Copy')}
+
+    const text = prepareCopyToClipboardTsvData(data, columns);
+    const html = prepareCopyToClipboardHtmlData(data, columns, columnTypes);
+    const copied = await writeTableToClipboard({ text, html });
+
+    if (copied) {
+      addSuccessToast(t('Copied!'));
+    }
+  }, [addSuccessToast, columnTypes, columns, data, disabled]);
+
+  return (
+    <Tooltip title={t('Copy to clipboard')}>
+      <span
         role="button"
-        css={css`
-          &.anticon > * {
-            line-height: 0;
+        aria-label={t('Copy to clipboard')}
+        aria-disabled={disabled}
+        tabIndex={disabled ? -1 : 0}
+        onClick={handleCopy}
+        onKeyDown={event => {
+          if (!disabled && (event.key === 'Enter' || event.key === ' ')) {
+            event.preventDefault();
+            handleCopy();
           }
-        `}
-      />
-    }
-  />
-);
+        }}
+      >
+        <Icons.CopyOutlined
+          iconColor={theme.colorIcon}
+          iconSize="l"
+          css={css`
+            opacity: ${disabled ? 0.3 : 1};
+            cursor: ${disabled ? 'not-allowed' : 'pointer'};
+            &.anticon > * {
+              line-height: 0;
+            }
+          `}
+        />
+      </span>
+    </Tooltip>
+  );
+};
 
 export const FilterInput = ({
   onChangeHandler,

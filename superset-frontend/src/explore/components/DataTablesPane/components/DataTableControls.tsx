@@ -78,7 +78,11 @@ export const TableControls = ({
       >
         <RowCountLabel rowcount={rowcount} loading={isLoading} />
         {canDownload && (
-          <CopyToClipboardButton data={formattedData} columns={columnNames} />
+          <CopyToClipboardButton
+            data={formattedData}
+            columns={columnNames}
+            columnTypes={columnTypes}
+          />
         )}
       </div>
     </TableControlsWrapper>
