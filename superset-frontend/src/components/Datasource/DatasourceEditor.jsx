@@ -451,12 +451,13 @@ function ColumnCollectionTable({
                     data-test={`radio-default-dttm-${record.column_name}`}
                     checked={checked}
                     disabled={disabled}
-                    onChange={() =>
+                    onClick={() =>
                       onDatasourceChange({
                         ...datasource,
-                        main_dttm_col: record.column_name,
+                        main_dttm_col: checked ? null : record.column_name,
                       })
                     }
+                    onChange={() => {}}
                   />
                 );
               },
@@ -503,12 +504,13 @@ function ColumnCollectionTable({
                     data-test={`radio-default-dttm-${record.column_name}`}
                     checked={checked}
                     disabled={disabled}
-                    onChange={() =>
+                    onClick={() =>
                       onDatasourceChange({
                         ...datasource,
-                        main_dttm_col: record.column_name,
+                        main_dttm_col: checked ? null : record.column_name,
                       })
                     }
+                    onChange={() => {}}
                   />
                 );
               },

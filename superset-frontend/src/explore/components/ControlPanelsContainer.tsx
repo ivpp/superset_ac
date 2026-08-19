@@ -53,7 +53,7 @@ import {
   sections,
 } from '@superset-ui/chart-controls';
 import { useSelector } from 'react-redux';
-import { kebabCase, isEqual } from 'lodash';
+import { kebabCase } from 'lodash';
 
 import {
   Collapse,
@@ -465,33 +465,33 @@ export const ControlPanelsContainer = (props: ControlPanelsContainerProps) => {
         valueToBeDeleted: Record<string, any>,
         values: Record<string, any>[],
       ) => {
-        const isTemporalRange = (filter: Record<string, any>) =>
-          filter.operator === Operators.TemporalRange;
-        if (!controls?.time_range?.value && isTemporalRange(valueToBeDeleted)) {
-          const count = values.filter(isTemporalRange).length;
-          if (count === 1) {
-            // if temporal filter's value is "No filter", prevent deletion
-            // otherwise reset the value to "No filter"
-            if (valueToBeDeleted.comparator === defaultTimeFilter) {
-              return t(
-                `You cannot delete the last temporal filter as it's used for time range filters in dashboards.`,
-              );
-            }
-            props.actions.setControlValue(
-              name,
-              values.map(val => {
-                if (isEqual(val, valueToBeDeleted)) {
-                  return {
-                    ...val,
-                    comparator: defaultTimeFilter,
-                  };
-                }
-                return val;
-              }),
-            );
-            return false;
-          }
-        }
+        // const isTemporalRange = (filter: Record<string, any>) =>
+        //   filter.operator === Operators.TemporalRange;
+        // if (!controls?.time_range?.value && isTemporalRange(valueToBeDeleted)) {
+        //   const count = values.filter(isTemporalRange).length;
+        //   if (count === 1) {
+        //     // if temporal filter's value is "No filter", prevent deletion
+        //     // otherwise reset the value to "No filter"
+        //     if (valueToBeDeleted.comparator === defaultTimeFilter) {
+        //       return t(
+        //         `You cannot delete the last temporal filter as it's used for time range filters in dashboards.`,
+        //       );
+        //     }
+        //     props.actions.setControlValue(
+        //       name,
+        //       values.map(val => {
+        //         if (isEqual(val, valueToBeDeleted)) {
+        //           return {
+        //             ...val,
+        //             comparator: defaultTimeFilter,
+        //           };
+        //         }
+        //         return val;
+        //       }),
+        //     );
+        //     return false;
+        //   }
+        // }
         return true;
       };
     }

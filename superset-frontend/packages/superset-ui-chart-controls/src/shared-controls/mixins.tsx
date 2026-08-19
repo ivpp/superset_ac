@@ -18,7 +18,7 @@
  */
 import {
   ensureIsArray,
-  NO_TIME_RANGE,
+  // NO_TIME_RANGE,
   QueryFormData,
   t,
   validateNonEmpty,
@@ -104,21 +104,21 @@ export const datePickerInAdhocFilterMixin: Pick<
 
     // should apply the default time filter into adhoc filter
     // 1) temporal column is existed in current datasource
-    const temporalColumn =
-      state?.datasource &&
-      getTemporalColumns(state.datasource).defaultTemporalColumn;
-    if (temporalColumn) {
-      return [
-        ...ensureIsArray(control.value),
-        {
-          clause: 'WHERE',
-          subject: temporalColumn,
-          operator: 'TEMPORAL_RANGE',
-          comparator: state?.common?.conf?.DEFAULT_TIME_FILTER || NO_TIME_RANGE,
-          expressionType: 'SIMPLE',
-        },
-      ];
-    }
+    // const temporalColumn =
+    //   state?.datasource &&
+    //   getTemporalColumns(state.datasource).defaultTemporalColumn;
+    // if (temporalColumn) {
+    //   return [
+    //     ...ensureIsArray(control.value),
+    //     {
+    //       clause: 'WHERE',
+    //       subject: temporalColumn,
+    //       operator: 'TEMPORAL_RANGE',
+    //       comparator: state?.common?.conf?.DEFAULT_TIME_FILTER || NO_TIME_RANGE,
+    //       expressionType: 'SIMPLE',
+    //     },
+    //   ];
+    // }
 
     return undefined;
   },
