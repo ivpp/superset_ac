@@ -118,6 +118,7 @@ superset/translations/**/messages.json
 superset/translations/**/messages.mo
 
 docker/requirements-local.txt
+.devcontainer/devcontainer.env
 
 cache/
 docker/*local*

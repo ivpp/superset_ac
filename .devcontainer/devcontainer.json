@@ -38,18 +38,21 @@
     }
   },
 
+  "runArgs": ["-p=9001:9001", "--env-file=.devcontainer/devcontainer.env"],
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+
   // Run commands after container is created
-  "postCreateCommand": "bash .devcontainer/setup-dev.sh || echo '⚠️ Setup had issues - run .devcontainer/setup-dev.sh manually'",
+  // "postCreateCommand": "bash .devcontainer/setup-dev.sh || echo '⚠️ Setup had issues - run .devcontainer/setup-dev.sh manually'",
 
   // Auto-start Superset after ensuring Docker is ready
   // Run in foreground to see any errors, but don't block on failures
-  "postStartCommand": "bash -c 'echo \"Waiting 30s for services to initialize...\"; sleep 30; .devcontainer/start-superset.sh || echo \"⚠️ Auto-start failed - run start-superset manually\"'",
+  // "postStartCommand": "bash -c 'echo \"Waiting 30s for services to initialize...\"; sleep 30; .devcontainer/start-superset.sh || echo \"⚠️ Auto-start failed - run start-superset manually\"'",
 
   // Set environment variables
-  "remoteEnv": {
+  // "remoteEnv": {
     // Removed automatic venv activation to prevent startup issues
     // The setup script will handle this
-  },
+  // },
 
   // VS Code customizations
   "customizations": {

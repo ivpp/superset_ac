@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     tmux \
     gh \
+    zstd \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv for fast Python package management
