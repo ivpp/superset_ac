@@ -248,46 +248,57 @@ function UserListModal({
               maxTagCount={50}
             />
           </FormItem>
-          {!isEditMode && (
-            <>
-              <FormItem
-                name="password"
-                label={t('Password')}
-                rules={[{ required: true, message: t('Password is required') }]}
-              >
-                <Input.Password
-                  name="password"
-                  placeholder="Enter the user's password"
-                />
-              </FormItem>
-              <FormItem
-                name="confirmPassword"
-                label={t('Confirm Password')}
-                dependencies={['password']}
-                rules={[
-                  {
-                    required: true,
-                    message: t('Please confirm your password'),
-                  },
-                  ({ getFieldValue }) => ({
-                    validator(_, value) {
-                      if (!value || getFieldValue('password') === value) {
-                        return Promise.resolve();
-                      }
-                      return Promise.reject(
-                        new Error(t('Passwords do not match!')),
-                      );
-                    },
-                  }),
-                ]}
-              >
-                <Input.Password
-                  name="confirmPassword"
-                  placeholder={t("Confirm the user's password")}
-                />
-              </FormItem>
-            </>
-          )}
+          <FormItem
+            name="password"
+            label={isEditMode ? t('New password') : t('Password')}
+            rules={[
+              {
+                required: !isEditMode,
+                message: t('Password is required'),
+              },
+            ]}
+          >
+            <Input.Password
+              name="password"
+              placeholder="Enter the user's password"
+              autoComplete="new-password"
+            />
+          </FormItem>
+          <FormItem
+            name="confirmPassword"
+            label={
+              isEditMode ? t('Confirm new password') : t('Confirm password')
+            }
+            dependencies={['password']}
+            rules={[
+              {
+                required: !isEditMode,
+                message: t('Please confirm the password'),
+              },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  const password = getFieldValue('password');
+
+                  if (!password && !value && isEditMode) {
+                    return Promise.resolve();
+                  }
+
+                  if (password === value) {
+                    return Promise.resolve();
+                  }
+
+                  return Promise.reject(
+                    new Error(t('Passwords do not match!')),
+                  );
+                },
+              }),
+            ]}
+          >
+            <Input.Password
+              name="confirmPassword"
+              placeholder={t("Confirm the user's password")}
+            />
+          </FormItem>
         </>
       )}
     </FormModal>

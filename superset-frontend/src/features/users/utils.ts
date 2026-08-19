@@ -32,9 +32,14 @@ export const createUser = async (values: FormValues) => {
 };
 
 export const updateUser = async (user_Id: number, values: FormValues) => {
+  const { confirmPassword, password, ...payload } = values;
+  const jsonPayload = { ...payload };
+  if (typeof password === 'string' && password.length > 0) {
+    jsonPayload.password = password;
+  }
   await SupersetClient.put({
     endpoint: `/api/v1/security/users/${user_Id}`,
-    jsonPayload: { ...values },
+    jsonPayload,
   });
 };
 
