@@ -24,14 +24,16 @@ ARG PY_VER=3.11.13-slim-bookworm
 ARG BUILDPLATFORM=${BUILDPLATFORM:-amd64}
 
 # Include translations in the final build
-ARG BUILD_TRANSLATIONS="false"
+ARG BUILD_TRANSLATIONS="true"
 
 ######################################################################
 # superset-node-ci used as a base for building frontend assets and CI
 ######################################################################
 FROM --platform=${BUILDPLATFORM} node:20-bookworm-slim AS superset-node-ci
 ARG BUILD_TRANSLATIONS
+ARG SCARF_ANALYTICS="false"
 ENV BUILD_TRANSLATIONS=${BUILD_TRANSLATIONS}
+ENV SCARF_ANALYTICS=${SCARF_ANALYTICS}
 ARG DEV_MODE="false"           # Skip frontend build in dev mode
 ENV DEV_MODE=${DEV_MODE}
 
@@ -207,6 +209,10 @@ RUN rm superset/translations/*/*/*.po
 # Merging translations from backend and frontend stages
 COPY --from=superset-node /app/superset/translations superset/translations
 COPY --from=python-translation-compiler /app/translations_mo superset/translations
+
+# Custom Superset configuration
+COPY --chown=superset:superset superset_config.py /app/superset_config.py
+ENV SUPERSET_CONFIG_PATH=/app/superset_config.py
 
 HEALTHCHECK CMD /app/docker/docker-healthcheck.sh
 CMD ["/app/docker/entrypoints/run-server.sh"]
