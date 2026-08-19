@@ -141,6 +141,9 @@ export const useExploreAdditionalActionsMenu = (
     state => state.charts?.[getChartKey(state.explore)],
   );
 
+  const latestQueryFormDataAll = structuredClone(latestQueryFormData);
+  latestQueryFormDataAll.row_limit = 10000000
+
   // Use the updated report menu items hook
   const reportMenuItem = useHeaderReportMenuItems({
     chart,
@@ -183,6 +186,18 @@ export const useExploreAdditionalActionsMenu = (
     [canDownloadCSV, latestQueryFormData],
   );
 
+  const exportCSVAll = useCallback(
+    () =>
+      canDownloadCSV
+        ? exportChart({
+            formData: latestQueryFormDataAll,
+            resultType: 'full',
+            resultFormat: 'csv',
+          })
+        : null,
+    [canDownloadCSV, latestQueryFormData],
+  );
+
   const exportCSVPivoted = useCallback(
     () =>
       canDownloadCSV
@@ -195,11 +210,35 @@ export const useExploreAdditionalActionsMenu = (
     [canDownloadCSV, latestQueryFormData],
   );
 
+  const exportCSVPivotedAll = useCallback(
+    () =>
+      canDownloadCSV
+        ? exportChart({
+            formData: latestQueryFormDataAll,
+            resultType: 'post_processed',
+            resultFormat: 'csv',
+          })
+        : null,
+    [canDownloadCSV, latestQueryFormData],
+  );
+
   const exportExcelPivoted = useCallback(
     () =>
       canDownloadCSV
         ? exportChart({
             formData: latestQueryFormData,
+            resultType: 'post_processed',
+            resultFormat: 'xlsx',
+          })
+        : null,
+    [canDownloadCSV, latestQueryFormData],
+  );
+
+  const exportExcelPivotedAll = useCallback(
+    () =>
+      canDownloadCSV
+        ? exportChart({
+            formData: latestQueryFormDataAll,
             resultType: 'post_processed',
             resultFormat: 'xlsx',
           })
@@ -224,6 +263,18 @@ export const useExploreAdditionalActionsMenu = (
       canDownloadCSV
         ? exportChart({
             formData: latestQueryFormData,
+            resultType: 'results',
+            resultFormat: 'xlsx',
+          })
+        : null,
+    [canDownloadCSV, latestQueryFormData],
+  );
+
+  const exportExcelAll = useCallback(
+    () =>
+      canDownloadCSV
+        ? exportChart({
+            formData: latestQueryFormDataAll,
             resultType: 'results',
             resultFormat: 'xlsx',
           })
@@ -308,44 +359,28 @@ export const useExploreAdditionalActionsMenu = (
     if (VIZ_TYPES_PIVOTABLE.includes(latestQueryFormData.viz_type)) {
       downloadChildren.push(
         {
-          key: MENU_KEYS.EXPORT_TO_CSV,
-          label: t('Export to original .CSV'),
-          icon: <Icons.FileOutlined />,
-          disabled: !canDownloadCSV,
-          onClick: () => {
-            exportCSV();
-            setIsDropdownVisible(false);
-            dispatch(
-              logEvent(LOG_ACTIONS_CHART_DOWNLOAD_AS_CSV, {
-                chartId: slice?.slice_id,
-                chartName: slice?.slice_name,
-              }),
-            );
-          },
-        },
-        {
-          key: MENU_KEYS.EXPORT_TO_CSV_PIVOTED,
-          label: t('Export to pivoted .CSV'),
-          icon: <Icons.FileOutlined />,
-          disabled: !canDownloadCSV,
-          onClick: () => {
-            exportCSVPivoted();
-            setIsDropdownVisible(false);
-            dispatch(
-              logEvent(LOG_ACTIONS_CHART_DOWNLOAD_AS_CSV_PIVOTED, {
-                chartId: slice?.slice_id,
-                chartName: slice?.slice_name,
-              }),
-            );
-          },
-        },
-        {
           key: MENU_KEYS.EXPORT_TO_XLSX,
-          label: t('Export to original Excel'),
+          label: t('Export to Excel'),
           icon: <Icons.FileOutlined />,
           disabled: !canDownloadCSV,
           onClick: () => {
             exportExcel();
+            setIsDropdownVisible(false);
+            dispatch(
+              logEvent(LOG_ACTIONS_CHART_DOWNLOAD_AS_XLS, {
+                chartId: slice?.slice_id,
+                chartName: slice?.slice_name,
+              }),
+            );
+          },
+        },
+        {
+          key: MENU_KEYS.EXPORT_TO_XLSX_ALL,
+          label: t('Export all to Excel'),
+          icon: <Icons.FileOutlined />,
+          disabled: !canDownloadCSV,
+          onClick: () => {
+            exportExcelAll();
             setIsDropdownVisible(false);
             dispatch(
               logEvent(LOG_ACTIONS_CHART_DOWNLOAD_AS_XLS, {
@@ -376,41 +411,160 @@ export const useExploreAdditionalActionsMenu = (
             );
           },
         },
+        {
+          key: MENU_KEYS.EXPORT_TO_PIVOT_XLSX_ALL,
+          label: t('Export all to pivoted Excel'),
+          icon: <Icons.FileOutlined />,
+          disabled: !canDownloadCSV,
+          onClick: () => {
+            // const sliceSelector = `#chart-id-0`;
+            // exportPivotExcel(
+            //   `${sliceSelector} .pvtTable`,
+            //   slice?.slice_name ?? t('pivoted_xlsx'),
+            // );
+            exportExcelPivotedAll()
+            setIsDropdownVisible(false);
+            dispatch(
+              logEvent(LOG_ACTIONS_CHART_DOWNLOAD_AS_XLS, {
+                chartId: slice?.slice_id,
+                chartName: slice?.slice_name,
+              }),
+            );
+          },
+        },
+        {
+          key: MENU_KEYS.EXPORT_TO_CSV,
+          label: t('Export to .CSV'),
+          icon: <Icons.FileOutlined />,
+          disabled: !canDownloadCSV,
+          onClick: () => {
+            exportCSV();
+            setIsDropdownVisible(false);
+            dispatch(
+              logEvent(LOG_ACTIONS_CHART_DOWNLOAD_AS_CSV, {
+                chartId: slice?.slice_id,
+                chartName: slice?.slice_name,
+              }),
+            );
+          },
+        },
+        {
+          key: MENU_KEYS.EXPORT_TO_CSV_ALL,
+          label: t('Export all to .CSV'),
+          icon: <Icons.FileOutlined />,
+          disabled: !canDownloadCSV,
+          onClick: () => {
+            exportCSVAll();
+            setIsDropdownVisible(false);
+            dispatch(
+              logEvent(LOG_ACTIONS_CHART_DOWNLOAD_AS_CSV, {
+                chartId: slice?.slice_id,
+                chartName: slice?.slice_name,
+              }),
+            );
+          },
+        },
+        {
+          key: MENU_KEYS.EXPORT_TO_CSV_PIVOTED,
+          label: t('Export to pivoted .CSV'),
+          icon: <Icons.FileOutlined />,
+          disabled: !canDownloadCSV,
+          onClick: () => {
+            exportCSVPivoted();
+            setIsDropdownVisible(false);
+            dispatch(
+              logEvent(LOG_ACTIONS_CHART_DOWNLOAD_AS_CSV_PIVOTED, {
+                chartId: slice?.slice_id,
+                chartName: slice?.slice_name,
+              }),
+            );
+          },
+        },
+        {
+          key: MENU_KEYS.EXPORT_TO_CSV_PIVOTED_ALL,
+          label: t('Export all to pivoted .CSV'),
+          icon: <Icons.FileOutlined />,
+          disabled: !canDownloadCSV,
+          onClick: () => {
+            exportCSVPivotedAll();
+            setIsDropdownVisible(false);
+            dispatch(
+              logEvent(LOG_ACTIONS_CHART_DOWNLOAD_AS_CSV_PIVOTED, {
+                chartId: slice?.slice_id,
+                chartName: slice?.slice_name,
+              }),
+            );
+          },
+        },
       );
     } else {
-      downloadChildren.push({
-        key: MENU_KEYS.EXPORT_TO_CSV,
-        label: t('Export to .CSV'),
-        icon: <Icons.FileOutlined />,
-        disabled: !canDownloadCSV,
-        onClick: () => {
-          exportCSV();
-          setIsDropdownVisible(false);
-          dispatch(
-            logEvent(LOG_ACTIONS_CHART_DOWNLOAD_AS_CSV, {
-              chartId: slice?.slice_id,
-              chartName: slice?.slice_name,
-            }),
-          );
+      downloadChildren.push(
+        {
+          key: MENU_KEYS.EXPORT_TO_XLSX,
+          label: t('Export to Excel'),
+          icon: <Icons.FileOutlined />,
+          disabled: !canDownloadCSV,
+          onClick: () => {
+            exportExcel();
+            setIsDropdownVisible(false);
+            dispatch(
+              logEvent(LOG_ACTIONS_CHART_DOWNLOAD_AS_XLS, {
+                chartId: slice?.slice_id,
+                chartName: slice?.slice_name,
+              }),
+            );
+          },
         },
-      },
-      {
-        key: MENU_KEYS.EXPORT_TO_XLSX,
-        label: t('Export to Excel'),
-        icon: <Icons.FileOutlined />,
-        disabled: !canDownloadCSV,
-        onClick: () => {
-          exportExcel();
-          setIsDropdownVisible(false);
-          dispatch(
-            logEvent(LOG_ACTIONS_CHART_DOWNLOAD_AS_XLS, {
-              chartId: slice?.slice_id,
-              chartName: slice?.slice_name,
-            }),
-          );
+        {
+          key: MENU_KEYS.EXPORT_TO_XLSX_ALL,
+          label: t('Export all to Excel'),
+          icon: <Icons.FileOutlined />,
+          disabled: !canDownloadCSV,
+          onClick: () => {
+            exportExcelAll();
+            setIsDropdownVisible(false);
+            dispatch(
+              logEvent(LOG_ACTIONS_CHART_DOWNLOAD_AS_XLS, {
+                chartId: slice?.slice_id,
+                chartName: slice?.slice_name,
+              }),
+            );
+          },
         },
-      },
-    )};
+        {
+          key: MENU_KEYS.EXPORT_TO_CSV,
+          label: t('Export to .CSV'),
+          icon: <Icons.FileOutlined />,
+          disabled: !canDownloadCSV,
+          onClick: () => {
+            exportCSV();
+            setIsDropdownVisible(false);
+            dispatch(
+              logEvent(LOG_ACTIONS_CHART_DOWNLOAD_AS_CSV, {
+                chartId: slice?.slice_id,
+                chartName: slice?.slice_name,
+              }),
+            );
+          },
+        },
+        {
+          key: MENU_KEYS.EXPORT_TO_CSV_All,
+          label: t('Export all to .CSV'),
+          icon: <Icons.FileOutlined />,
+          disabled: !canDownloadCSV,
+          onClick: () => {
+            exportCSVAll();
+            setIsDropdownVisible(false);
+            dispatch(
+              logEvent(LOG_ACTIONS_CHART_DOWNLOAD_AS_CSV, {
+                chartId: slice?.slice_id,
+                chartName: slice?.slice_name,
+              }),
+            );
+          },
+        },
+      )
+    };
 
     downloadChildren.push(
       {
@@ -454,7 +608,7 @@ export const useExploreAdditionalActionsMenu = (
     menuItems.push({
       key: MENU_KEYS.DOWNLOAD_SUBMENU,
       type: 'submenu',
-      label: t('Download'),
+      label: t('Export'),
       children: downloadChildren,
     });
 
