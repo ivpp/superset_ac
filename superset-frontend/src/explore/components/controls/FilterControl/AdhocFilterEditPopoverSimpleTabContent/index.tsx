@@ -22,7 +22,6 @@ import { Input, Select, Tooltip } from '@superset-ui/core/components';
 import {
   isFeatureEnabled,
   FeatureFlag,
-  isDefined,
   styled,
   SupersetClient,
   useTheme,
@@ -49,7 +48,6 @@ import {
 } from '@superset-ui/chart-controls';
 import useAdvancedDataTypes from './useAdvancedDataTypes';
 import { useDatePickerInAdhocFilter } from '../utils';
-import { useDefaultTimeFilter } from '../../DateFilterControl/utils';
 import { Clauses, ExpressionTypes } from '../types';
 
 const SelectWithLabel = styled(Select)<{ labelText: string }>`
@@ -101,7 +99,6 @@ export interface AdvancedDataTypesState {
 }
 
 export const useSimpleTabFilterProps = (props: Props) => {
-  const defaultTimeFilter = useDefaultTimeFilter();
 
   const isOperatorRelevant = (operator: Operators, subject: string) => {
     const column = props.datasource.columns?.find(
@@ -117,9 +114,8 @@ export const useSimpleTabFilterProps = (props: Props) => {
       const { partitionColumn } = props;
       return partitionColumn && subject && subject === partitionColumn;
     }
-    if (operator && operator === Operators.TemporalRange) {
-      // hide the TEMPORAL_RANGE operator
-      return false;
+    if (operator === Operators.TemporalRange) {
+      return isTemporalColumn(subject, props.datasource);
     }
     if (operator === Operators.IsTrue || operator === Operators.IsFalse) {
       return isColumnBoolean || isColumnNumber || isColumnFunction;
@@ -140,7 +136,7 @@ export const useSimpleTabFilterProps = (props: Props) => {
     );
     let subject = '';
     let clause;
-    // infer the new clause based on what subject was selected.
+    // Infer the new clause based on what subject was selected.
     if (option && 'column_name' in option) {
       subject = option.column_name;
       clause = Clauses.Where;
@@ -151,52 +147,43 @@ export const useSimpleTabFilterProps = (props: Props) => {
       subject = option.label;
       clause = Clauses.Having;
     }
-    let { operator, operatorId, comparator } = props.adhocFilter;
-    operator =
-      operator && operatorId && isOperatorRelevant(operatorId, subject)
-        ? OPERATOR_ENUM_TO_OPERATOR_TYPE[
-            operatorId as keyof typeof OPERATOR_ENUM_TO_OPERATOR_TYPE
-          ].operation
-        : null;
-    if (!isDefined(operator)) {
-      // if operator is `null`, use the `IN` and reset the comparator.
-      operator = Operators.In;
-      operatorId = Operators.In;
-      comparator = undefined;
-    }
 
-    if (isTemporalColumn(id, props.datasource)) {
-      subject = id;
-      operator = Operators.TemporalRange;
-      operatorId = Operators.TemporalRange;
-      comparator = defaultTimeFilter;
-    }
+    const operatorId = Operators.Equals;
 
     props.onChange(
       props.adhocFilter.duplicateWith({
         subject,
         clause,
-        operator,
-        expressionType: ExpressionTypes.Simple,
         operatorId,
-        comparator,
+        operator: OPERATOR_ENUM_TO_OPERATOR_TYPE[operatorId].operation,
+        comparator: undefined,
+        expressionType: ExpressionTypes.Simple,
       }),
     );
   };
   const onOperatorChange = (operatorId: Operators) => {
+    const currentOperatorId = props.adhocFilter.operatorId;
     const currentComparator = props.adhocFilter.comparator;
+    const changingTimeRangeMode =
+      operatorId === Operators.TemporalRange ||
+      currentOperatorId === Operators.TemporalRange;
+
     let newComparator;
-    // convert between list of comparators and individual comparators
-    // (e.g. `in ('North America', 'Africa')` to `== 'North America'`)
-    if (MULTI_OPERATORS.has(operatorId)) {
+    if (changingTimeRangeMode) {
+      // Date ranges and regular comparator values are not interchangeable.
+      newComparator = undefined;
+    } else if (MULTI_OPERATORS.has(operatorId)) {
+      // Convert an individual comparator into a list comparator.
       newComparator = Array.isArray(currentComparator)
         ? currentComparator
         : [currentComparator].filter(element => element);
     } else {
+      // Convert a list comparator into an individual comparator.
       newComparator = Array.isArray(currentComparator)
         ? currentComparator[0]
         : currentComparator;
     }
+
     if (operatorId && CUSTOM_OPERATORS.has(operatorId)) {
       props.onChange(
         props.adhocFilter.duplicateWith({
@@ -204,6 +191,7 @@ export const useSimpleTabFilterProps = (props: Props) => {
           clause: Clauses.Where,
           operatorId,
           operator: OPERATOR_ENUM_TO_OPERATOR_TYPE[operatorId].operation,
+          comparator: newComparator,
           expressionType: ExpressionTypes.Sql,
           datasource: props.datasource,
         }),
@@ -240,6 +228,7 @@ export const useSimpleTabFilterProps = (props: Props) => {
       props.adhocFilter.duplicateWith({
         subject: columnName,
         operator: Operators.TemporalRange,
+        operatorId: Operators.TemporalRange,
         comparator: timeRange,
         expressionType: ExpressionTypes.Simple,
       }),
@@ -332,9 +321,20 @@ const AdhocFilterEditPopoverSimpleTabContent: FC<Props> = props => {
   };
 
   const handleOperatorChange = (operatorId: Operators) => {
+    const changingTimeRangeMode =
+      operatorId === Operators.TemporalRange ||
+      props.adhocFilter.operatorId === Operators.TemporalRange;
+
+    if (changingTimeRangeMode) {
+      setComparator(undefined);
+    }
+
     onOperatorChange(operatorId);
 
-    if (!DISABLE_INPUT_OPERATORS.includes(operatorId)) {
+    if (
+      operatorId !== Operators.TemporalRange &&
+      !DISABLE_INPUT_OPERATORS.includes(operatorId)
+    ) {
       setFocusComparatorAfterChange(true);
     } else {
       setFocusComparatorAfterChange(false);
@@ -413,12 +413,16 @@ const AdhocFilterEditPopoverSimpleTabContent: FC<Props> = props => {
   const labelText =
     comparator && comparator.length > 0 && createSuggestionsPlaceholder();
 
+  const isTemporalSubject =
+    !!subject && isTemporalColumn(subject, props.datasource);
+  const shouldShowDatePicker =
+    isTemporalSubject && operatorId === Operators.TemporalRange;
+
   const datePicker = useDatePickerInAdhocFilter({
     columnName: props.adhocFilter.subject,
-    timeRange:
-      props.adhocFilter.operator === Operators.TemporalRange
-        ? props.adhocFilter.comparator
-        : undefined,
+    timeRange: shouldShowDatePicker
+      ? props.adhocFilter.comparator
+      : undefined,
     datasource: props.datasource,
     onChange: onDatePickerChange,
   });
@@ -457,10 +461,12 @@ const AdhocFilterEditPopoverSimpleTabContent: FC<Props> = props => {
           });
       }
     };
-    if (!datePicker) {
+    if (shouldShowDatePicker) {
+      setSuggestions([]);
+    } else {
       refreshComparatorSuggestions();
     }
-  }, [props.adhocFilter.subject]);
+  }, [props.adhocFilter.subject, props.adhocFilter.operatorId]);
 
   useEffect(() => {
     if (isFeatureEnabled(FeatureFlag.EnableAdvancedDataTypes)) {
@@ -511,69 +517,71 @@ const AdhocFilterEditPopoverSimpleTabContent: FC<Props> = props => {
     />
   );
 
-  const operatorsAndOperandComponent = (
-    <>
-      <Select
-        options={(props.operators ?? OPERATORS_OPTIONS)
-          .filter(op => isOperatorRelevantWrapper(op, subject))
-          .map((option, index) => ({
-            value: option,
-            label: OPERATOR_ENUM_TO_OPERATOR_TYPE[option].display,
-            key: option,
-            order: index,
-          }))}
-        {...operatorSelectProps}
-      />
-      {MULTI_OPERATORS.has(operatorId) || suggestions.length > 0 ? (
-        <Tooltip
-          title={
-            advancedDataTypesState.errorMessage ||
-            advancedDataTypesState.parsedAdvancedDataType
-          }
-        >
-          <SelectWithLabel
-            css={css`
-              margin-top: ${theme.sizeUnit * 4}px;
-            `}
-            labelText={labelText}
-            options={suggestions}
-            {...comparatorSelectProps}
-          />
-        </Tooltip>
-      ) : (
-        <Tooltip
-          title={
-            advancedDataTypesState.errorMessage ||
-            advancedDataTypesState.parsedAdvancedDataType
-          }
-        >
-          <div
-            css={css`
-              margin-top: ${theme.sizeUnit * 4}px;
-            `}
-          />
-          <Input
-            data-test="adhoc-filter-simple-value"
-            name="filter-value"
-            ref={ref => {
-              if (ref && shouldFocusComparator) {
-                ref.focus();
-                setFocusComparatorAfterChange(false);
-              }
-            }}
-            onChange={onInputComparatorChange}
-            value={comparator}
-            placeholder={t('Filter value (case sensitive)')}
-            disabled={DISABLE_INPUT_OPERATORS.includes(operatorId)}
-          />
-        </Tooltip>
-      )}
-    </>
+  const operatorComponent = (
+    <Select
+      options={(props.operators ?? OPERATORS_OPTIONS)
+        .filter(op => isOperatorRelevantWrapper(op, subject))
+        .map((option, index) => ({
+          value: option,
+          label: OPERATOR_ENUM_TO_OPERATOR_TYPE[option].display,
+          key: option,
+          order: index,
+        }))}
+      {...operatorSelectProps}
+    />
   );
+
+  const comparatorComponent =
+    MULTI_OPERATORS.has(operatorId) || suggestions.length > 0 ? (
+      <Tooltip
+        title={
+          advancedDataTypesState.errorMessage ||
+          advancedDataTypesState.parsedAdvancedDataType
+        }
+      >
+        <SelectWithLabel
+          css={css`
+            margin-top: ${theme.sizeUnit * 4}px;
+          `}
+          labelText={labelText}
+          options={suggestions}
+          {...comparatorSelectProps}
+        />
+      </Tooltip>
+    ) : (
+      <Tooltip
+        title={
+          advancedDataTypesState.errorMessage ||
+          advancedDataTypesState.parsedAdvancedDataType
+        }
+      >
+        <div
+          css={css`
+            margin-top: ${theme.sizeUnit * 4}px;
+          `}
+        />
+        <Input
+          data-test="adhoc-filter-simple-value"
+          name="filter-value"
+          ref={ref => {
+            if (ref && shouldFocusComparator) {
+              ref.focus();
+              setFocusComparatorAfterChange(false);
+            }
+          }}
+          onChange={onInputComparatorChange}
+          value={comparator}
+          placeholder={t('Filter value (case sensitive)')}
+          disabled={DISABLE_INPUT_OPERATORS.includes(operatorId)}
+        />
+      </Tooltip>
+    );
+
   return (
     <>
       {subjectComponent}
-      {datePicker ?? operatorsAndOperandComponent}
+      {operatorComponent}
+      {shouldShowDatePicker ? datePicker : comparatorComponent}
     </>
   );
 };

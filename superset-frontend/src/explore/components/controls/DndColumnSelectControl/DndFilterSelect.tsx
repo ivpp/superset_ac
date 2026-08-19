@@ -50,7 +50,6 @@ import { DndItemType } from 'src/explore/components/DndItemType';
 import { ControlComponentProps } from 'src/explore/components/Control';
 import { toQueryString } from 'src/utils/urlUtils';
 import DndAdhocFilterOption from './DndAdhocFilterOption';
-import { useDefaultTimeFilter } from '../DateFilterControl/utils';
 import { Clauses, ExpressionTypes } from '../FilterControl/types';
 
 const { warning } = Modal;
@@ -382,7 +381,6 @@ const DndFilterSelect = (props: DndFilterSelectProps) => {
     togglePopover(true);
   }, [togglePopover]);
 
-  const defaultTimeFilter = useDefaultTimeFilter();
   const adhocFilter = useMemo(() => {
     if (isSavedMetric(droppedItem)) {
       return new AdhocFilter({
@@ -402,16 +400,16 @@ const DndFilterSelect = (props: DndFilterSelectProps) => {
       subject: (droppedItem as ColumnMeta)?.column_name,
     };
     if (config.subject) {
-      config.operator = OPERATOR_ENUM_TO_OPERATOR_TYPE[Operators.In].operation;
-      config.operatorId = Operators.In;
+      config.operator = OPERATOR_ENUM_TO_OPERATOR_TYPE[Operators.Equals].operation;
+      config.operatorId = Operators.Equals;
     }
     if (
       isColumnMeta(droppedItem) &&
       isTemporalColumn(droppedItem?.column_name, props.datasource)
     ) {
-      config.operator = Operators.TemporalRange;
-      config.operatorId = Operators.TemporalRange;
-      config.comparator = defaultTimeFilter;
+      config.operator = OPERATOR_ENUM_TO_OPERATOR_TYPE[Operators.Equals].operation;
+      config.operatorId = Operators.Equals;
+      // config.comparator = defaultTimeFilter;
     }
     return new AdhocFilter(config);
   }, [droppedItem]);
