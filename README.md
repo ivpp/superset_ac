@@ -16,6 +16,320 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
+# Superset-AC
+
+We take Superset 6.0.0 and make it awesome (for us 😊).
+
+## Why customize?
+
+Features:
+- Fix numerous UI bugs
+- Fix and extend export options: CSV and Excel export, pivoted CSV and Excel export, export all rows
+- Add info sheet to Excel export with export metadat
+- Add Keycloak SSO with optional username/password login
+- Add `columns_are_active` macro to Jinja template processor for conditionally applying left joins in virtual datasets
+- Make role, user, and group edit dialogs much more user-friendly
+- Add ability to reset user passwords in admin panel
+- ...etc.
+
+## Deploy
+
+- We clone repository, [configure](#configure) and build using [Dockerfile](https://github.com/ivpp/superset_ac/blob/master/Dockerfile).
+- We deploy only Superset application itself, no other components described [here](https://superset.apache.org/admin-docs/installation/architecture).
+- We use PostgreSQL as metadata database, which is deployed separately.
+
+These are environment variables that we provide as docker run arguments when running the container:
+```ini
+# Built-in Superset environment variables
+SUPERSET_SECRET_KEY=...
+SQLALCHEMY_DATABASE_URI=postgresql://user_name:user_password@x.x.x.x/database_name
+# Custom environment variables
+YANDEX_MAP_API_KEY=...
+OAUTH_CLIENT_ID=...
+OAUTH_CLIENT_SECRET=...
+# Docker environment variables
+TZ=...
+```
+
+### How to run
+
+1. Clone the repository
+2. [Configure](#configure)
+3. Build image - `cd` to the project root, then:
+```bash
+sudo docker build -t superset_ac:6.0.0 .
+```
+4. Run container:
+```bash
+sudo docker run \
+    -d \
+    -p <desired_port>:8088 \
+    -e SUPERSET_SECRET_KEY=... \
+    -e SQLALCHEMY_DATABASE_URI="postgresql://user_name:user_password@x.x.x.x/database_name" \
+    -e YANDEX_MAP_API_KEY=... \
+    -e OAUTH_CLIENT_ID=... \
+    -e OAUTH_CLIENT_SECRET=... \
+    -e TZ=... \
+    --name superset_ac_6_0_0 \
+    --restart unless-stopped \
+    superset_ac:6.0.0
+```
+
+## Configure
+
+We use `superset_config.py` as described [here](https://superset.apache.org/admin-docs/configuration/configuring-superset#superset_configpy).
+We put it to the root of the project. It is copied and `SUPERSET_CONFIG_PATH` environment variable is set accordingly in `Dockerfile`.
+
+This is our perfect superset_config.py:
+```python
+import os
+import sys
+import csv
+from datetime import timedelta
+from superset.config import D3Format, CORS_OPTIONS, TALISMAN_CONFIG, TALISMAN_DEV_CONFIG
+from flask_appbuilder.security.manager import AUTH_OAUTH
+
+# For Oracle support:
+import oracledb
+sys.modules["cx_Oracle"] = oracledb
+oracledb.version = "8.3.0"
+
+# Multiple favicons can be specified here. The "href" property
+# is mandatory, but "sizes," "type," and "rel" are optional.
+# For example:
+# {
+#     "href":path/to/image.png",
+#     "sizes": "16x16",
+#     "type": "image/png"
+#     "rel": "icon"
+# },
+FAVICONS = [{"href": "/static/assets/images/favicon-name.svg"}]
+
+# Default theme configuration
+THEME_DEFAULT = {
+    "token": {
+        "brandLogoUrl" : "/static/assets/images/logo-name.svg",
+    },  
+}
+
+# This is an important setting, and should be lower than your
+# [load balancer / proxy / envoy / kong / ...] timeout settings.
+# You should also make sure to configure your WSGI server
+# (gunicorn, nginx, apache, ...) timeout setting to be <= to this setting
+SUPERSET_WEBSERVER_TIMEOUT = int(timedelta(minutes=10).total_seconds())
+
+# The SQLAlchemy connection string.
+SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI")
+
+# ----------------------------------------------------
+# AUTHENTICATION CONFIG
+# ----------------------------------------------------
+# The authentication type
+# AUTH_DB : Is for database (username/password)
+# AUTH_LDAP : Is for LDAP
+# AUTH_REMOTE_USER : Is for using REMOTE_USER from web server
+AUTH_TYPE = AUTH_OAUTH
+OAUTH_PROVIDERS = [
+    {
+        "name": "keycloak",
+        "verbose_name": ...,
+        "token_key": "access_token",
+        "icon": "fa-address-card",
+        "remote_app": {
+            "client_id": os.environ.get("OAUTH_CLIENT_ID"),
+            "client_secret": os.environ.get("OAUTH_CLIENT_SECRET"),
+            "server_metadata_url": ...,
+            "client_kwargs": {"scope": "openid email profile "},
+        }
+    }
+]
+OAUTH_SERVER_LOGOUT_URL = ...
+# Set AUTH_OAUTH_OR_AUTH_DB to True to allow login using SSO or login and password
+AUTH_OAUTH_OR_AUTH_DB = True
+if AUTH_OAUTH_OR_AUTH_DB:
+    from superset.custom_sso_security_manager import CustomSsoDbSecurityManager
+    CUSTOM_SECURITY_MANAGER = CustomSsoDbSecurityManager
+else:
+    from superset.custom_sso_security_manager import CustomSsoSecurityManager
+    CUSTOM_SECURITY_MANAGER = CustomSsoSecurityManager
+
+# The allowed translation for your app
+LANGUAGES = {
+    "en": {"flag": "us", "name": "English"},
+    "ru": {"flag": "ru", "name": "Russian"},
+}
+
+# D3_FORMAT: D3Format = {}
+D3_FORMAT: D3Format  = {
+    "decimal": ",",           # - decimal place string (e.g., ".").
+    "thousands": " ",         # - group separator string (e.g., ",").
+    "grouping": [3],          # - array of group sizes (e.g., [3]), cycled as needed.
+}
+
+# Feature flags
+FEATURE_FLAGS: dict[str, bool] = {
+    "ENABLE_TEMPLATE_PROCESSING": True
+}
+
+# CSV Options: key/value pairs that will be passed as argument to DataFrame.to_csv
+# method.
+# note: index option should not be overridden
+# CSV_EXPORT = {"encoding": "utf-8-sig"}
+CSV_EXPORT = {
+    "encoding": "utf-8-sig",
+    "sep": ";",
+    "decimal": ",",
+    "quoting": csv.QUOTE_NONNUMERIC
+}
+
+# Excel Options: key/value pairs that will be passed as argument to DataFrame.to_excel
+# method.
+# note: index option should not be overridden
+EXCEL_EXPORT = {"index": False}
+
+# Maximum number of rows returned for any analytical database query
+SQL_MAX_ROW = 10000000
+
+# Override the default mapbox tiles
+# Default values are equivalent to
+DECKGL_BASE_MAP = [
+    ["https://tile.openstreetmap.org/{z}/{x}/{y}.png", "Streets (OSM)"],
+    ["tile://https://tiles.api-maps.yandex.ru/v1/tiles/?projection=web_mercator"
+     "&x={{x}}&y={{y}}&z={{z}}&lang=ru_RU&l=map"
+     f"&apikey={os.environ.get('YANDEX_MAP_API_KEY')}", "YandexMap"],
+]
+
+# CORS Options
+CORS_OPTIONS["origins"].append("https://tiles.api-maps.yandex.ru")
+
+# If you want Talisman, how do you want it configured??
+# For more information on setting up Talisman, please refer to
+# https://superset.apache.org/docs/configuration/networking-settings/#changing-flask-talisman-csp
+TALISMAN_CONFIG["content_security_policy"]["connect-src"].append("https://tiles.api-maps.yandex.ru")
+TALISMAN_DEV_CONFIG["content_security_policy"]["connect-src"].append("https://tiles.api-maps.yandex.ru")
+
+# Use all X-Forwarded headers when ENABLE_PROXY_FIX is True.
+# When proxying to a different port, set "x_port" to 0 to avoid downstream issues.
+ENABLE_PROXY_FIX = True
+
+```
+
+### How to add branding
+
+Before building image:
+ - Logo: put `.svg` file to `/static/assets/images/logo-name.svg` and add this to `superset_config.py`:
+```python
+THEME_DEFAULT = {
+    "token": {
+        "brandLogoUrl" : "/static/assets/images/logo-name.svg",
+    },
+}
+```
+ - Favicon: put `.svg` file to `/static/assets/images/favicon-name.svg` and add `FAVICONS = [{"href": "/static/assets/images/favicon-name.svg"}]` to `superset_config.py`
+ - Loader: put `.gif` file to `superset-frontend/packages/superset-ui-core/src/components/assets/images/loading.gif` and to `superset-frontend/src/assets/images/loading.gif`
+
+## Key feature examples
+
+### SSO with optional normal login and password
+
+We define two custom Superset security managers: `CustomSsoSecurityManager` for Keycloak
+and `CustomSsoDbSecurityManager` for Keycloak or normal login and password. This is
+how to use them in `superset_config.py`:
+
+```python
+AUTH_TYPE = AUTH_OAUTH
+OAUTH_PROVIDERS = [
+    {
+        "name": "keycloak",
+        "verbose_name": "Keycloak SSO",
+        "token_key": "access_token",
+        "icon": "fa-address-card",
+        "remote_app": {
+            "client_id": ...,
+            "client_secret": ...,
+            "server_metadata_url": "https://.../auth/realms/.../.well-known/openid-configuration",,
+            "client_kwargs": {"scope": "openid email profile "},
+        }
+    }
+]
+OAUTH_SERVER_LOGOUT_URL = "https://.../auth/realms/.../protocol/openid-connect/logout"
+AUTH_OAUTH_OR_AUTH_DB = True
+if AUTH_OAUTH_OR_AUTH_DB:
+    from superset.custom_sso_security_manager import CustomSsoDbSecurityManager
+    CUSTOM_SECURITY_MANAGER = CustomSsoDbSecurityManager
+else:
+    from superset.custom_sso_security_manager import CustomSsoSecurityManager
+    CUSTOM_SECURITY_MANAGER = CustomSsoSecurityManager
+```
+When `AUTH_TYPE = AUTH_OAUTH` AND `AUTH_OAUTH_OR_AUTH_DB = True`, Keycloak with optional normal login and password is used,
+or just Keycloak otherwise. Use exactly `AUTH_OAUTH_OR_AUTH_DB` constant, as it is
+referenced in frontend to render appropriate login forms.
+
+You can set up any other SSO provider following instructions [here](https://superset.apache.org/admin-docs/configuration/configuring-superset#custom-oauth2-configuration).
+
+### Join elimination with Jinja
+
+Suppose your data source is like this:
+```sql
+select
+    table1.id as id,
+    table1.id222 as id222,
+    table2.col2 as t2_col2,
+    table3.col3 as t3_col3,
+    table4.col4 as t4_col4,
+    COALESCE(table2.col2, table4.col4) AS tcol5
+from table1
+left join table2 on table1.t2_id = table2.id
+left join table3 on table2.t3_id = table3.id
+left join table4 on table1.t4_id = table4.id
+```
+Suppose also that the joined tables are joined on their primary keys. Since these are `LEFT JOIN`s, the joins preserve the number of rows.
+Clearly, not all `JOIN`s are always necessary. For example, to retrieve distinct IDs from table2, we only need one `JOIN`.
+We introduce the `columns_are_active` macro in the Jinja template processor. It checks whether columns are used in the user's query in dimensions, metrics, or filters. You can now create a virtual dataset like this:
+```sql
+select
+    {% if columns_are_active(['ID']) %}, table1.id AS id {% else %}, null as id {% endif %}
+    {% if columns_are_active(['ID222']) %}, table1.id222 AS id222 {% else %}, null as id222 {% endif %}
+    {% if columns_are_active(['T2_COL2']) %}, table2.col2 AS t2_col2 {% else %}, null as t2_col2 {% endif %}
+    {% if columns_are_active(['T3_COL3']) %}, table3.col3 AS t3_col3 {% else %}, null as t3_col3 {% endif %}
+    {% if columns_are_active(['T4_COL4']) %}, table4.col4 AS t4_col4 {% else %}, null as t4_col4 {% endif %}
+    {% if columns_are_active(['TCOL5']) %}, COALESCE(table2.col2, table4.col4) AS tcol5 {% else %}, null as tcol5 {% endif %}
+FROM table1
+{% if columns_are_active(['T2_COL2', 'T3_COL3', 'TCOL5']) %} LEFT JOIN table2 ON table1.t2_id = table2.id {% endif %}
+{% if columns_are_active(['T3_COL3']) %} LEFT JOIN table3 ON table2.t3_id = table3.id {% endif %}
+{% if columns_are_active(['T4_COL4', 'TCOL5']) %} LEFT JOIN table4 ON table1.t4_id = table4.id {% endif %}
+```
+For the previous example, this eliminates unnecessary `JOIN`s when possible.
+Some RDBMSs have built-in `JOIN` elimination, but analyzing the query takes time. In extreme cases involving hundreds of joins, it can take the optimizer several minutes to determine which joins are actually needed.
+
+To construct the Jinja template above, you need to resolve the dependencies between the columns in the `SELECT` clause and the joined tables. We provide a script in [this repository](https://github.com/ivpp/sql_join_dependencies) that automatically converts SQL queries into the corresponding Jinja templates.
+
+## Development
+
+We develop in Visual Studio Code devcontainer. Do the following to setup basic dev server
+with hot reloading for both backend and frontend which is publically available on LAN:
+- Clone the repository
+- Open it in Visual Studio Code
+- Create file `.devcontainer/devcontainer.env` with required environmetal variables. It must include at list one environment variable - `SUPERSET_SECRET_KEY` for your dev Superset instance.
+- Open project in devcontainer
+- In a new terminal run:
+```bash
+superset run -p <backend_port> --reload --debug
+```
+- In ther second new terminal run:
+```bash
+cd superset-frontend
+npm run dev-server -- --env=--superset=http://127.0.0.1:<backend_port> --port <frontend_port>
+```
+
+## ❗Security❗
+- We provide our custom security managers. Review the corresponding code and use them at your own risk.
+- We disable escaping of special characters during CSV export (CSV injection protection). We do this because we are confident in our data sources, and disabling this feature speeds up CSV export significantly.
+
+
+---
+
+---
 
 # Superset
 
