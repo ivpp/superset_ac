@@ -22,6 +22,7 @@ from typing import Any, TYPE_CHECKING
 from io import BytesIO
 import datetime
 import pandas as pd
+from urllib.parse import parse_qs, urlparse
 
 from flask import current_app as app, g, make_response, request, Response, url_for
 from flask_appbuilder.api import expose, protect
@@ -346,7 +347,10 @@ class ChartDataRestApi(ChartRestApi):
         result = async_command.run(form_data, get_user_id())
         return self.response(202, **result)
 
-    def get_export_metadata(self, form_data, datasource):
+    def _get_export_metadata(self, query_context, datasource):
+
+        form_data = query_context.form_data
+        form_data_key = self._get_form_data_key(query_context)
 
         def concat_param(key):
             return ", ".join([
@@ -370,17 +374,37 @@ class ChartDataRestApi(ChartRestApi):
         export_metadata = {}
         export_metadata["export_time"] = datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S")
 
-        if "slice_id" in form_data["url_params"].keys():
-            export_metadata["dataset_basic_url"] = url_for(
+        # Always show base dataset url
+        datasource_id, datasource_type = form_data['datasource'].split("__")
+        export_metadata["dataset_url"] = url_for(
+            "ExploreView.root",
+            datasource_type=datasource_type,
+            datasource_id=datasource_id,
+            _external=True,
+        )
+
+        # If chart, show base chart url
+        # If form_data_key, then show specific chart url
+        if form_data.get("slice_id"):
+            export_metadata["chart_url"] = url_for(
                 "ExploreView.root",
-                slice_id=form_data["url_params"]["slice_id"],
+                slice_id=form_data["slice_id"],
                 _external=True,
             )
-        else:
-            export_metadata["dataset_basic_url"] = url_for(
+            if form_data_key:
+                export_metadata["form_data_key_url"] = url_for(
+                    "ExploreView.root",
+                    form_data_key=form_data_key,
+                    slice_id=form_data["slice_id"],
+                    _external=True,
+                )
+        # Else if form_data_key, show specific dataset url
+        elif form_data_key:
+            export_metadata["form_data_key_url"] = url_for(
                 "ExploreView.root",
-                datasource_type=form_data["url_params"]["datasource_type"],
-                datasource_id=form_data["url_params"]["datasource_id"],
+                form_data_key=form_data_key,
+                datasource_type=datasource_type,
+                datasource_id=datasource_id,
                 _external=True,
             )
 
@@ -412,10 +436,46 @@ class ChartDataRestApi(ChartRestApi):
 
         return export_metadata
 
-    def add_export_metadata(self, data, form_data, datasource, is_csv_format):
+    def _get_form_data_key(self, query_context):
+
+        form_data = query_context.form_data
+        form_data_key = None
+
+        # 1. form_data passed explicitly
+        if form_data:
+            form_data_key = (
+                (form_data.get("url_params") or {})
+                .get("form_data_key")
+            )
+
+        # 2. Original query dictionaries
+        if not form_data_key:
+            for query in query_context.cache_values.get("queries", []):
+                form_data_key = (
+                    (query.get("url_params") or {})
+                    .get("form_data_key")
+                )
+                if form_data_key:
+                    break
+
+        # 3. Parameter on the API request itself
+        if not form_data_key:
+            form_data_key = request.args.get("form_data_key")
+
+        # 4. Explore URL that initiated the XLSX request
+        if not form_data_key and request.referrer:
+            referrer_args = parse_qs(urlparse(request.referrer).query)
+            form_data_key = next(
+                iter(referrer_args.get("form_data_key", [])),
+                None,
+            )
+
+        return form_data_key
+
+    def _add_export_metadata(self, data, datasource, query_context, is_csv_format):
 
         if not is_csv_format:
-            export_metadata = self.get_export_metadata(form_data, datasource)
+            export_metadata = self._get_export_metadata(query_context, datasource)
             metadata = pd.DataFrame.from_dict(
                 export_metadata,
                 orient="index"
@@ -461,7 +521,12 @@ class ChartDataRestApi(ChartRestApi):
             if len(result["queries"]) == 1:
                 # return single query results
                 data = result["queries"][0]["data"]
-                data = self.add_export_metadata(data, form_data, datasource, is_csv_format)
+                data = self._add_export_metadata(
+                    data,
+                    datasource,
+                    result["query_context"],
+                    is_csv_format,
+                )
                 if is_csv_format:
                     encoding = app.config["CSV_EXPORT"].get("encoding", "utf-8-sig")
                     return CsvResponse(
